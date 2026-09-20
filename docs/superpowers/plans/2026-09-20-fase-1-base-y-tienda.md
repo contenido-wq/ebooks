@@ -60,7 +60,7 @@ src/
     qr.ts                      generateQrAssets(), wrapText(), escapeXml()
   test/fixtures.ts             makeBook() para tests
 scripts/generar-qr.ts          genera PNG, SVG y tarjeta 9:16
-vitest.config.ts  vitest.setup.ts  .env.example  README.md
+vitest.config.mts  vitest.setup.ts  .env.example  README.md
 ```
 
 ---
@@ -95,7 +95,7 @@ Expected: `feat/tienda-base`
 ### Task 1: Proyecto base, pruebas y layout
 
 **Files:**
-- Create: `vitest.config.ts`, `vitest.setup.ts`, `.env.example`, `src/lib/site.ts`
+- Create: `vitest.config.mts`, `vitest.setup.ts`, `.env.example`, `src/lib/site.ts`
 - Modify: `src/app/layout.tsx`, `src/app/globals.css`, `src/app/page.tsx`, `.gitignore`, `package.json`
 - Test: `src/lib/site.test.ts`
 
@@ -121,7 +121,7 @@ npm pkg set scripts.test="vitest run" scripts.test:watch="vitest" scripts.typech
 
 - [ ] **Step 3: Crear la configuración de Vitest**
 
-`vitest.config.ts`:
+`vitest.config.mts`:
 
 ```ts
 import react from "@vitejs/plugin-react"
