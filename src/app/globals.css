@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-papel: #f6f0e4;
+  --color-papel-oscuro: #ece3d0;
+  --color-tinta: #1d1a16;
+  --color-tinta-suave: #5b5347;
+  --color-cancha: #1f5a3d;
+  --color-cancha-oscuro: #163f2b;
+  --color-dorado: #8a6420;
+  --color-dorado-claro: #b8893a;
+  --color-linea: #dccfb4;
+
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --shadow-portada:
+    0 30px 60px -20px rgb(29 26 22 / 0.45), 0 8px 16px -8px rgb(29 26 22 / 0.3);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-papel);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.cover-tilt {
+  transition: transform 400ms ease;
+  transform-style: preserve-3d;
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .cover-tilt:hover {
+    transform: perspective(1200px) rotateY(-10deg) rotateX(3deg) scale(1.02);
+  }
+}
