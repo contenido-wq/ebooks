@@ -1720,7 +1720,7 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 700 }}>
-          <div style={{ fontSize: 26, letterSpacing: 6, textTransform: "uppercase", color: "#8a6420" }}>
+          <div style={{ fontSize: 26, letterSpacing: 3, textTransform: "uppercase", color: "#8a6420" }}>
             {book.autor}
           </div>
           <div style={{ fontSize: 84, lineHeight: 1.05, marginTop: 24 }}>{book.titulo}</div>
