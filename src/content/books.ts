@@ -52,17 +52,11 @@ const siDiosJugaraFutbol: Book = {
       fraseManuscrita: "La vida también se juega en equipo",
       lateralSuperior: "Historias que también juegan",
       lateralDerecha: ["Más que fútbol", "Historias que cambian vidas"],
-      imagenHorizontal: {
-        src: "/imagenes/hero-horizontal.webp",
-        ancho: 2400,
-        alto: 1350,
-        alt: "Juan Guillermo Ricaurte sentado en las gradas de un estadio, mirando hacia arriba",
-      },
-      imagenMovil: {
-        src: "/imagenes/hero-movil.webp",
-        ancho: 1440,
-        alto: 2400,
-        alt: "Juan Guillermo Ricaurte sentado en las gradas de un estadio, mirando hacia arriba",
+      imagen: {
+        src: "/imagenes/hero.webp",
+        ancho: 1672,
+        alto: 941,
+        alt: "Juan Guillermo Ricaurte leyendo Si Dios jugara fútbol en las gradas de un estadio",
       },
     },
     historia: {

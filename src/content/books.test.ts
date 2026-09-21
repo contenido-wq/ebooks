@@ -37,23 +37,21 @@ describe("contenido de la landing", () => {
     const { landing } = libro
     const rutas = [
       libro.portada?.src,
-      landing.hero.imagenHorizontal.src,
-      landing.hero.imagenMovil.src,
+      landing.hero.imagen.src,
       landing.historia.imagen.src,
       ...landing.pases.tarjetas.map((t) => t.imagen.src),
       landing.autor.imagen.src,
       landing.cierre.imagen.src,
     ].filter((ruta): ruta is string => Boolean(ruta))
 
-    expect(rutas.length).toBe(9)
+    expect(rutas.length).toBe(8)
     for (const ruta of rutas) expect(existsSync(path.join("public", ruta)), ruta).toBe(true)
   })
 
   it("todas las imágenes tienen texto alternativo", () => {
     const { landing } = libro
     const imagenes = [
-      landing.hero.imagenHorizontal,
-      landing.hero.imagenMovil,
+      landing.hero.imagen,
       landing.historia.imagen,
       ...landing.pases.tarjetas.map((t) => t.imagen),
       landing.autor.imagen,

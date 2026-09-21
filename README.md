@@ -26,7 +26,7 @@ a partir de los archivos originales, que no están en el repositorio:
 
     npm run portada -- "/ruta/Portada.pdf"              # recorta la portada del archivo de imprenta
     python3 scripts/imagenes/componer-tableta.py "<carpeta>/02-tableta.png" public/portada.webp /tmp/tableta-real.png
-    npm run imagenes -- "<carpeta de las escenas>" /tmp/tableta-real.png
+    npm run imagenes -- "<carpeta de las escenas>" /tmp/tableta-real.png "<Portada.png>"   # la foto de la portada de la página
 
 La tableta lleva la portada real proyectada en su pantalla (la imagen original traía una portada inventada).
 El script de la tableta necesita Python con `numpy` y `pillow`.

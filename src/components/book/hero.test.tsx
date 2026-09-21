@@ -28,7 +28,7 @@ describe("Hero", () => {
 
   it("trae la foto con su texto alternativo", () => {
     render(<Hero book={book} />)
-    expect(screen.getByAltText("Imagen de hero-movil")).toBeInTheDocument()
+    expect(screen.getByAltText("Imagen de hero")).toBeInTheDocument()
   })
 
   it("es el destino de #hero y trae el menú con los enlaces a las secciones", () => {

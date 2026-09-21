@@ -124,7 +124,7 @@ Dirección **cinematográfica**, tomada de la referencia "05 · Galería cinemat
 
 - **Colores:** negro cálido (`#0b0a08`) y verde profundo (`#0e1c15`) en las secciones oscuras; crema (`#f6f0e4`) en las claras; dorado con degradado (`#c9a15a`, `#e8cd92`) para titulares, botones, líneas y detalles. Las secciones alternan oscuro y claro.
 - **Tipografía:** Playfair Display en títulos (pesos altos, con el espaciado apretado), Montserrat en texto y etiquetas en mayúsculas espaciadas, y Caveat para la frase manuscrita. Cargadas con `next/font`.
-- **Fotografía:** ocho escenas en `public/imagenes/` (portada horizontal y de celular, tableta, tres pases, botines y balón). La portada usa dirección de arte: foto horizontal en pantallas anchas y vertical en el celular, sin descargar las dos.
+- **Fotografía:** ocho imágenes en `public/imagenes/`: la foto de la portada (Juan Guillermo leyendo el libro real en un estadio), la tableta, los tres pases, los botines y el balón. La foto de la portada es una sola: en celular se enfoca la parte donde están él y el libro.
 - **Portada del libro:** la real, recortada del archivo de imprenta (150 × 240 mm). En la escena de la tableta se coloca con la perspectiva del dispositivo: la imagen original traía una portada inventada que no era la del libro.
 - **Estructura de la landing:** portada con menú, "Cumplió su sueño", "Tres pases" (minutos 3, 18 y 31 del libro), autor, "Lees su historia", cierre con el balón, panel de compra con garantía y preguntas frecuentes, y pie.
 - **Idioma y voz:** español neutro latinoamericano, con la voz de Jhei y storytelling. Los textos salen del libro; las frases de marketing que no salen de él las aprobó el dueño.
