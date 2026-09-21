@@ -12,7 +12,7 @@ export function Autor({ book }: { book: Book }) {
           alt={autor.imagen.alt}
           fill
           sizes="100vw"
-          className="object-cover object-left"
+          className="object-cover object-[left_30%]"
         />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-verde-profundo to-transparent lg:hidden" />
         <div
@@ -21,7 +21,7 @@ export function Autor({ book }: { book: Book }) {
         />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-7xl px-5 pb-16 pt-2 sm:px-8 lg:min-h-[26rem] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-center lg:py-24">
+      <div className="relative mx-auto grid w-full max-w-7xl px-5 pb-16 pt-2 sm:px-8 lg:min-h-[max(26rem,min(41.7vw,720px))] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-center lg:py-24">
         <p
           aria-hidden
           className="absolute right-8 top-1/2 hidden w-28 -translate-y-1/2 border-l border-oro/70 pl-4 text-[0.65rem] font-medium uppercase leading-relaxed tracking-[0.25em] xl:block"

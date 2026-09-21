@@ -6,7 +6,7 @@ export function Historia({ book }: { book: Book }) {
 
   return (
     <section id="el-libro" className="relative isolate scroll-mt-4 overflow-hidden bg-papel text-tinta">
-      <div className="mx-auto grid w-full max-w-7xl lg:min-h-[34rem] lg:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-7xl lg:min-h-[max(34rem,min(43.4vw,770px))] lg:grid-cols-2">
         <div className="relative z-10 px-5 py-16 sm:px-8 lg:py-28">
           <h2 className="font-serif text-[clamp(2.4rem,6vw,4.4rem)] font-extrabold lg:text-[clamp(2.2rem,4.2vw,4.4rem)] leading-[0.98] tracking-[-0.03em]">
             {historia.tituloClaro} <span className="block text-oro-medio">{historia.tituloDorado}</span>
@@ -16,7 +16,7 @@ export function Historia({ book }: { book: Book }) {
           <p className="mt-6 font-semibold">{historia.prologo}</p>
         </div>
 
-        <div className="relative aspect-[10/7] lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[62%]">
+        <div className="relative aspect-[10/7] lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[min(62%,1100px)]">
           <Image
             src={historia.imagen.src}
             alt={historia.imagen.alt}
