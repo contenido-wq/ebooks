@@ -57,17 +57,6 @@ export function Hero({ book }: { book: Book }) {
             {hero.fraseManuscrita}
           </p>
         </div>
-
-        <div
-          aria-hidden
-          className="absolute right-8 top-1/2 hidden w-28 -translate-y-1/2 border-l border-oro/70 pl-4 xl:block"
-        >
-          {hero.lateralDerecha.map((linea, i) => (
-            <p key={linea} className={`text-[0.65rem] font-medium uppercase leading-relaxed tracking-[0.25em] ${i > 0 ? "mt-6" : ""}`}>
-              {linea}
-            </p>
-          ))}
-        </div>
       </div>
     </section>
   )

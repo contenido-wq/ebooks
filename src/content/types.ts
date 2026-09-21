@@ -28,7 +28,6 @@ export type LandingContent = {
     cta: string
     fraseManuscrita: string
     lateralSuperior: string
-    lateralDerecha: string[]
     imagen: ImagenLanding
   }
   historia: {

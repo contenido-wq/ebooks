@@ -51,7 +51,6 @@ const siDiosJugaraFutbol: Book = {
       cta: "Quiero leer su historia",
       fraseManuscrita: "La vida también se juega en equipo",
       lateralSuperior: "Historias que también juegan",
-      lateralDerecha: ["Más que fútbol", "Historias que cambian vidas"],
       imagen: {
         src: "/imagenes/hero.webp",
         ancho: 1672,

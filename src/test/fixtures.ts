@@ -26,7 +26,6 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
         cta: "Quiero leer su historia",
         fraseManuscrita: "Una frase manuscrita",
         lateralSuperior: "Historias que juegan",
-        lateralDerecha: ["Más que fútbol", "Historias que cambian vidas"],
         imagen: imagen("hero"),
       },
       historia: {
