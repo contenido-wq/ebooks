@@ -22,7 +22,7 @@ export function Cover({ titulo, autor, src }: CoverProps) {
       aria-label={`Portada de ${titulo}`}
       className="flex aspect-[2/3] w-full flex-col justify-between rounded-md bg-cancha-oscuro p-6 text-papel shadow-portada"
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.25em] text-dorado-claro">
+      <span className="text-balance text-xs font-semibold uppercase tracking-[0.25em] text-dorado-claro">
         {autor}
       </span>
       <span className="font-serif text-3xl leading-tight text-balance">{titulo}</span>

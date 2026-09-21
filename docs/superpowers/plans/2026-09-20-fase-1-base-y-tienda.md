@@ -925,7 +925,7 @@ export function Cover({ titulo, autor, src }: CoverProps) {
       aria-label={`Portada de ${titulo}`}
       className="flex aspect-[2/3] w-full flex-col justify-between rounded-md bg-cancha-oscuro p-6 text-papel shadow-portada"
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.25em] text-dorado-claro">
+      <span className="text-balance text-xs font-semibold uppercase tracking-[0.25em] text-dorado-claro">
         {autor}
       </span>
       <span className="font-serif text-3xl leading-tight text-balance">{titulo}</span>
@@ -1055,7 +1055,7 @@ export function Hero({ book }: { book: Book }) {
         </div>
       </div>
       <div className="text-center md:text-left">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-dorado">{book.autor}</p>
+        <p className="text-balance text-sm font-semibold uppercase tracking-[0.2em] text-dorado">{book.autor}</p>
         <h1 className="mt-4 text-balance font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">
           {book.titulo}
         </h1>
@@ -1137,7 +1137,7 @@ export function Author({ book }: { book: Book }) {
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
       <h2 className="font-serif text-3xl sm:text-4xl">Sobre los autores</h2>
-      <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-dorado">
+      <p className="mt-2 text-balance text-sm font-semibold uppercase tracking-[0.2em] text-dorado">
         {book.autor}
       </p>
       <p className="mt-6 text-lg leading-relaxed">{book.sobreLosAutores}</p>

@@ -15,7 +15,7 @@ export function Hero({ book }: { book: Book }) {
         </div>
       </div>
       <div className="text-center md:text-left">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-dorado">{book.autor}</p>
+        <p className="text-balance text-sm font-semibold uppercase tracking-[0.2em] text-dorado">{book.autor}</p>
         <h1 className="mt-4 text-balance font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">
           {book.titulo}
         </h1>
