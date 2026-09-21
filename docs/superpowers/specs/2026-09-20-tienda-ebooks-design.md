@@ -67,23 +67,32 @@ Un reembolso o contracargo dispara `reembolsado`, que revoca el acceso automáti
 
 ## 7. Modelo de datos (Supabase)
 
-- `books`: id, slug, título, subtítulo, autor, portada, precio_usd, precio_cop, activo.
-- `book_pages`: book_id, número, ruta_imagen, es_vista_previa.
-- `orders`: id, book_id, email, proveedor (`stripe` | `wompi`), moneda, monto, estado (`pending` | `paid` | `failed` | `refunded`), id_externo, utm_source, creado_en.
-- `entitlements`: id, email, book_id, order_id, activo. Es la fuente de verdad de quién puede leer.
+**Fase 2 (lector):**
+
+- `books`: id, slug, título, total_páginas. Solo lo que el lector necesita: el copy de venta (subtítulo, precios, portada) sigue en `src/content/books.ts` hasta que exista un admin (Fase 4).
+- `book_pages`: book_id, número, es_vista_previa. La imagen vive en el bucket privado `book-pages/{slug}/{n}.webp`.
+- `book_chapters`: book_id, orden, número_página, título. Alimenta el índice del lector.
+- `entitlements`: id, email, book_id, order_id, origen (`pago` | `cortesia`), activo. Es la fuente de verdad de quién puede leer. `order_id` no tiene llave foránea hasta que exista `orders`.
 - `reading_progress`: email, book_id, última_página, actualizado_en.
 - `leads`: email, book_id, origen, creado_en. Se llena con el capítulo gratis.
+- `limites_uso`: clave, creado_en. La usa la función `consumir_cupo` para el límite de ritmo.
+
+**Fase 3 (pagos):**
+
+- `orders`: id, book_id, email, proveedor (`stripe` | `wompi`), moneda, monto, estado (`pending` | `paid` | `failed` | `refunded`), id_externo, utm_source, creado_en.
 - `webhook_events`: id_externo, proveedor, procesado_en. Garantiza la idempotencia.
 
-RLS activo en todas las tablas. Las escrituras de pagos y accesos las hace solo el servidor con la clave de servicio. El correo se guarda en minúsculas y el acceso se enlaza al usuario de Auth por ese correo verificado.
+RLS activo en todas las tablas y permisos mínimos: `anon` no recibe nada y `authenticated` solo lee el catálogo y sus propios accesos y lee y escribe su propio progreso (y solo de libros a los que tiene acceso). Todo lo demás lo hace el servidor con la clave secreta. El correo se guarda en minúsculas y el acceso se enlaza al usuario de Auth por ese correo verificado.
 
 ## 8. Lector y protección
 
-**Preparación (una vez):** un script convierte cada página del PDF en una imagen WebP y las sube a un bucket **privado** de Supabase (`book-pages/{book_id}/{n}.webp`). El PDF original nunca se sirve.
+**Acceso:** sin contraseña. El lector pide su enlace en `/biblioteca`; el servidor solo lo envía si el email tiene un acceso (la respuesta es siempre la misma) y lo genera con la API de administración de Supabase, enviándolo por Resend. Así no depende de las plantillas del correo de Supabase, que el plan gratis no permite personalizar desde el 3 de junio de 2026. El enlace es de un solo uso y abre primero una pantalla con un botón, porque los escáneres de correo abren los enlaces y lo gastarían.
 
-**Servir páginas:** la ruta `/api/leer/[slug]/[n]` comprueba sesión y `entitlement` activo. Luego lee la imagen del bucket, le **estampa el email del comprador** con `sharp` de forma sutil y la devuelve directamente con `Cache-Control: private, max-age=300`. Las URLs del bucket nunca salen del servidor, porque la imagen final es distinta para cada comprador.
+**Preparación (una vez):** un script convierte cada página del PDF en una imagen WebP, recortada a la **caja de corte** (TrimBox: el PDF trae marcas de imprenta y sangrado), y las sube a un bucket **privado** de Supabase (`book-pages/{slug}/{n}.webp`). El PDF original nunca se sube ni se sirve.
 
-**Límite de ritmo:** más de 30 páginas por minuto por comprador devuelven 429. El precargado de páginas vecinas (±2) entra dentro de ese margen. Frena la descarga masiva con scripts.
+**Servir páginas:** la ruta `/api/paginas/[slug]/[n]` comprueba sesión y `entitlement` activo. Luego lee la imagen del bucket, le **estampa el email del comprador** de forma sutil y la devuelve directamente con `Cache-Control: private, max-age=300`. La marca se dibuja con `next/og` (que trae su propia fuente) y se repite sobre la página con `sharp`, porque el texto de `sharp` depende de las fuentes del sistema y un servidor Linux sin fuentes mostraría cuadritos. Las URLs del bucket nunca salen del servidor, porque la imagen final es distinta para cada comprador.
+
+**Límite de ritmo:** más de 30 páginas por minuto por comprador devuelven 429. El contador vive en Postgres (`consumir_cupo`) y no en memoria, porque en un servidor sin estado cada instancia tendría el suyo. El precargado de páginas vecinas entra dentro de ese margen. Frena la descarga masiva con scripts.
 
 **Otras medidas:** se bloquean el clic derecho y el arrastrar imágenes.
 
@@ -91,7 +100,7 @@ RLS activo en todas las tablas. Las escrituras de pagos y accesos las hace solo 
 
 **Interfaz:** pensada para celular. Deslizar para cambiar de página, pinch para hacer zoom, barra de progreso, índice por capítulos y última página recordada. Como el libro es un PDF maquetado, en pantallas chicas hace falta zoom.
 
-**Vista previa gratuita:** las páginas con `es_vista_previa` se leen sin comprar, pero piden el email (se guarda en `leads`). Se sirven sin marca de agua.
+**Vista previa gratuita:** las páginas con `es_vista_previa` (las primeras 22 del libro, unas 9%) se leen sin comprar, pero piden el email (se guarda en `leads`). Se sirven sin marca de agua por `/api/vista-previa/[slug]/[n]`, y una cookie `vp_<slug>` prueba que el lector dejó su email. Es una compuerta de captación, no de seguridad: son páginas gratuitas.
 
 ## 9. Conexiones y medición
 
