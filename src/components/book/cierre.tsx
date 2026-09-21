@@ -17,7 +17,7 @@ export function Cierre({ book }: { book: Book }) {
       <div aria-hidden className="absolute inset-0 -z-10 bg-negro/55 md:bg-gradient-to-l md:from-negro/70 md:via-negro/30 md:to-transparent" />
 
       <div className="relative mx-auto grid w-full max-w-7xl px-5 py-20 sm:px-8 md:min-h-[26rem] md:grid-cols-2 md:items-center md:py-28">
-        <div aria-hidden className="hidden w-32 justify-self-end border-l border-oro/70 pl-4 md:mr-12 md:block">
+        <div aria-hidden className="hidden w-32 justify-self-end border-l border-oro/70 pl-4 xl:mr-12 xl:block">
           {cierre.lateral.map((linea, i) => (
             <p key={linea} className={`text-[0.65rem] font-medium uppercase leading-relaxed tracking-[0.25em] ${i > 0 ? "mt-3" : ""}`}>
               {linea}
@@ -25,7 +25,7 @@ export function Cierre({ book }: { book: Book }) {
           ))}
         </div>
 
-        <div>
+        <div className="md:col-start-2">
           <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] font-bold leading-tight tracking-[-0.02em]">
             {cierre.tituloClaro} <span className="texto-oro block">{cierre.tituloDorado}</span>
           </h2>

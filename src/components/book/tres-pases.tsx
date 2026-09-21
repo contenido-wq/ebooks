@@ -26,14 +26,14 @@ export function TresPases({ book }: { book: Book }) {
           {pases.subtitulo}
         </p>
 
-        <div className="relative mt-12 grid gap-12 md:mt-16 md:grid-cols-3 md:gap-8">
+        <div className="relative mt-12 grid gap-12 md:mt-16 md:grid-cols-3 md:gap-6 lg:gap-8">
           {/* Flechas punteadas entre los tres números (solo en pantallas anchas). */}
           <svg
             aria-hidden
             viewBox="0 0 1000 90"
             preserveAspectRatio="none"
             fill="none"
-            className="pointer-events-none absolute inset-x-0 -top-2 hidden h-20 w-full text-oro-medio md:block"
+            className="pointer-events-none absolute inset-x-0 -top-2 hidden h-20 w-full text-oro-medio lg:block"
           >
             <defs>
               <marker id="punta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -67,7 +67,7 @@ export function TresPases({ book }: { book: Book }) {
               <p className="mt-5 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-tinta-suave">
                 Minuto {dosDigitos(tarjeta.minuto)} · {tarjeta.nombre}
               </p>
-              <h3 className="mt-2 font-serif text-2xl font-bold leading-tight tracking-[-0.02em] md:text-[1.7rem]">
+              <h3 className="mt-2 font-serif text-2xl font-bold leading-tight tracking-[-0.02em] md:text-xl lg:text-[1.7rem]">
                 {tarjeta.titulo}
               </h3>
               <p className="mt-3 leading-relaxed text-tinta-suave">{tarjeta.texto}</p>
