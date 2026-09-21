@@ -8,8 +8,12 @@ export function Hero({ book }: { book: Book }) {
 
   return (
     <section id="hero" className="relative isolate overflow-hidden bg-negro text-papel">
-      {/* En celular la foto ocupa la parte de arriba y el texto va debajo; en pantallas anchas es el fondo. */}
-      <div className="relative h-[68svh] lg:absolute lg:inset-0 lg:-z-10 lg:h-auto">
+      {/*
+        En celular la foto ocupa la parte de arriba y el texto va debajo; en pantallas anchas es el fondo.
+        La altura nunca baja de 56,25 % del ancho (la proporción 16:9 de la foto): así el recorte es solo por los
+        lados y jamás se corta la cabeza, ni en monitores muy anchos ni con el celular de lado.
+      */}
+      <div className="relative h-[max(68svh,56.25vw)] lg:absolute lg:inset-0 lg:-z-10 lg:h-auto">
         {/* Con poco ancho se enfoca la parte de la foto donde están él y el libro. */}
         <Image
           src={hero.imagen.src}
@@ -33,7 +37,7 @@ export function Hero({ book }: { book: Book }) {
 
       <SiteHeader titulo={book.titulo} lateral={hero.lateralSuperior} />
 
-      <div className="relative mx-auto -mt-16 flex w-full max-w-7xl flex-col px-5 pb-14 sm:px-8 lg:mt-0 lg:min-h-[100svh] lg:justify-center lg:pb-20 lg:pt-32">
+      <div className="relative mx-auto -mt-16 flex w-full max-w-7xl flex-col px-5 pb-14 sm:px-8 lg:mt-0 lg:min-h-[max(100svh,56.25vw)] lg:justify-center lg:pb-20 lg:pt-32">
         <div className="max-w-xl lg:max-w-2xl">
           <h1 className="font-serif text-[clamp(2.7rem,8.6vw,5.9rem)] font-extrabold leading-[0.95] tracking-[-0.03em] lg:text-[clamp(2.6rem,5.4vw,5.9rem)]">
             <span className="block">{hero.tituloClaro}</span> <span className="texto-oro block">{hero.tituloDorado}</span>
