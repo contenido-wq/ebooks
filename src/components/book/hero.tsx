@@ -20,7 +20,7 @@ export function Hero({ book }: { book: Book }) {
           alt={hero.imagen.alt}
           fill
           priority
-          quality={80}
+          quality={92}
           sizes="100vw"
           className="object-cover object-[74%_center] lg:object-right"
         />

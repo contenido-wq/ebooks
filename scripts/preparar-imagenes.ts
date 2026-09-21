@@ -22,8 +22,9 @@ const ESCENAS: [string, string][] = [
   ["07-balon.png", "balon.webp"],
 ]
 
-async function convertir(origen: string, destino: string) {
-  const info = await sharp(origen).webp({ quality: CALIDAD, effort: 5 }).toFile(destino)
+async function convertir(origen: string, destino: string, sinPerdida = false) {
+  const opciones = sinPerdida ? { lossless: true, effort: 6 } : { quality: CALIDAD, effort: 5 }
+  const info = await sharp(origen).webp(opciones).toFile(destino)
   console.log(`${path.basename(destino).padEnd(26)} ${info.width} × ${info.height}  ${Math.round(info.size / 1024)} KB`)
 }
 
@@ -37,7 +38,9 @@ async function main() {
 
   for (const [origen, salida] of ESCENAS) await convertir(path.join(carpeta, origen), path.join(SALIDA, salida))
   await convertir(tableta, path.join(SALIDA, "tableta.webp"))
-  await convertir(hero, path.join(SALIDA, "hero.webp"))
+  // La foto de la portada se guarda sin pérdida: Next la comprime una sola vez (calidad 92) al servirla.
+  // Comprimirla dos veces borra la textura de la piel y la deja "de cera".
+  await convertir(hero, path.join(SALIDA, "hero.webp"), true)
 }
 
 main().catch((error) => {
