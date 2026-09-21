@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "qr": "tsx scripts/generar-qr.ts"
+    "qr": "tsx scripts/generar-qr.ts",
+    "portada": "tsx scripts/extraer-portada.ts",
+    "imagenes": "tsx scripts/preparar-imagenes.ts"
   },
   "dependencies": {
     "next": "16.3.5",

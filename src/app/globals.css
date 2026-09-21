@@ -1,35 +1,63 @@
 @import "tailwindcss";
 
 @theme {
+  /* Crema (secciones claras) */
   --color-papel: #f6f0e4;
   --color-papel-oscuro: #ece3d0;
   --color-tinta: #1d1a16;
   --color-tinta-suave: #5b5347;
+  --color-linea: #dccfb4;
+
+  /* Negro y verde profundo (secciones oscuras) */
+  --color-negro: #0b0a08;
+  --color-carbon: #15120e;
+  --color-verde-profundo: #0e1c15;
+
+  /* Dorado */
+  --color-oro: #c9a15a;
+  --color-oro-claro: #e8cd92;
+  --color-oro-texto: #7d5a1f;
+  /* Dorado para títulos grandes sobre crema (contraste 3:1, suficiente para texto grande) */
+  --color-oro-medio: #a67c2d;
+
+  /* Se conservan por compatibilidad con componentes anteriores */
   --color-cancha: #1f5a3d;
   --color-cancha-oscuro: #163f2b;
   --color-dorado: #8a6420;
   --color-dorado-claro: #b8893a;
-  --color-linea: #dccfb4;
 
-  --font-serif: var(--font-fraunces), Georgia, serif;
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
+  --font-manuscrita: var(--font-caveat), cursive;
 
   --shadow-portada:
-    0 30px 60px -20px rgb(29 26 22 / 0.45), 0 8px 16px -8px rgb(29 26 22 / 0.3);
+    0 30px 60px -20px rgb(0 0 0 / 0.55), 0 8px 16px -8px rgb(0 0 0 / 0.4);
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html {
-  background: var(--color-papel);
+  background: var(--color-negro);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
+}
+
+/* Texto y fondos con degradado dorado */
+@utility texto-oro {
+  background-image: linear-gradient(180deg, #f2dca8 0%, #d3ab63 55%, #a37c36 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility fondo-oro {
+  background-image: linear-gradient(180deg, #ecd39b 0%, #c9a15a 55%, #b48a44 100%);
 }
 
 .cover-tilt {

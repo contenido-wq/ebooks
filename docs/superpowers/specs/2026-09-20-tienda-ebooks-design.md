@@ -17,7 +17,7 @@ Una tienda propia, sencilla y muy bonita, donde se venden ebooks digitales a pú
 | Formato del libro | PDF ya maquetado |
 | Acceso | Solo lectura online. Sin descarga. Marca de agua con el email del comprador |
 | Identidad del lector | Sin contraseña: enlace mágico por email |
-| Look | Editorial cálido y elegante, con la portada como protagonista |
+| Look | Cinematográfico: negro y dorado con secciones en crema, fotografía de escenas del libro y la portada real (referencia "05 · Galería cinematográfica"). Ver sección 11 |
 | Pagos | **Stripe** (USD, tarjetas, Apple Pay, Google Pay y otros métodos) + **Wompi** (COP: PSE, Nequi, tarjetas locales) |
 | Cuenta de Stripe | Aún no existe. Se abre una LLC en EE.UU. (Stripe Atlas). Mientras tanto se desarrolla con Stripe en modo test |
 | Precio de lanzamiento | US$19.99, configurable. El precio en COP se fija aparte, no por conversión automática |
@@ -33,7 +33,7 @@ Next.js (App Router) + TypeScript, Tailwind, Supabase (Postgres, Auth, Storage p
 ## 5. Páginas
 
 **Públicas**
-- `/`: la tienda del libro principal. Portada, sinopsis, capítulo gratis, testimonios, garantía de 7 días, preguntas frecuentes, botón de compra. Botón de compra fijo en celular.
+- `/`: la tienda del libro principal. Portada con foto y menú, la historia del libro en tres pases, autor, panel de compra con la portada real, garantía de 7 días, preguntas frecuentes y, más adelante, capítulo gratis y testimonios. Botón de compra fijo en celular.
 - `/libro/[slug]`: la página de un ebook. Permite sumar libros sin rehacer nada.
 - `/ig`, `/tiktok`, `/wa`: redirigen a la tienda con UTM de cada canal.
 - `/qr`: redirige a la tienda con UTM `qr`. El QR impreso apunta aquí y nunca cambia.
@@ -120,11 +120,16 @@ RLS activo en todas las tablas y permisos mínimos: `anon` no recibe nada y `aut
 
 ## 11. Diseño visual
 
-- **Colores:** fondo crema de papel, texto en tinta oscura, acento verde cancha profundo y detalles dorados. La paleta final se afina con la portada real.
-- **Tipografía:** serif elegante en títulos (tipo Fraunces) y sans limpia para el texto, cargadas con `next/font`.
-- **Portada:** protagonista, con sombra suave y ligero efecto 3D al pasar el cursor.
-- **Idioma y voz:** español neutro latinoamericano, con la voz de Jhei y storytelling.
-- Animaciones suaves. Diseño primero para celular, porque el tráfico viene de redes.
+Dirección **cinematográfica**, tomada de la referencia "05 · Galería cinematográfica" que entregó el dueño (reemplaza al look editorial crema de la primera versión).
+
+- **Colores:** negro cálido (`#0b0a08`) y verde profundo (`#0e1c15`) en las secciones oscuras; crema (`#f6f0e4`) en las claras; dorado con degradado (`#c9a15a`, `#e8cd92`) para titulares, botones, líneas y detalles. Las secciones alternan oscuro y claro.
+- **Tipografía:** Playfair Display en títulos (pesos altos, con el espaciado apretado), Montserrat en texto y etiquetas en mayúsculas espaciadas, y Caveat para la frase manuscrita. Cargadas con `next/font`.
+- **Fotografía:** ocho escenas en `public/imagenes/` (portada horizontal y de celular, tableta, tres pases, botines y balón). La portada usa dirección de arte: foto horizontal en pantallas anchas y vertical en el celular, sin descargar las dos.
+- **Portada del libro:** la real, recortada del archivo de imprenta (150 × 240 mm). En la escena de la tableta se coloca con la perspectiva del dispositivo: la imagen original traía una portada inventada que no era la del libro.
+- **Estructura de la landing:** portada con menú, "Cumplió su sueño", "Tres pases" (minutos 3, 18 y 31 del libro), autor, "Lees su historia", cierre con el balón, panel de compra con garantía y preguntas frecuentes, y pie.
+- **Idioma y voz:** español neutro latinoamericano, con la voz de Jhei y storytelling. Los textos salen del libro; las frases de marketing que no salen de él las aprobó el dueño.
+- Diseño primero para celular: la foto va arriba y el texto debajo, para que el titular no tape el rostro. Animaciones suaves, respetando "reducir movimiento".
+- **El lector (Fase 2)** y la biblioteca usan el mismo estilo: fondo oscuro, tarjetas en carbón con borde dorado y botones dorados.
 
 ## 12. Manejo de errores
 

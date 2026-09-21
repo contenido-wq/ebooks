@@ -13,7 +13,8 @@
 ## Global Constraints
 
 - Idioma de toda la interfaz y el copy: español neutro latinoamericano.
-- Look editorial cálido de la Fase 1: fondo crema `#f6f0e4`, tinta `#1d1a16`, acento verde cancha `#1f5a3d`, dorado `#8a6420`; Fraunces (títulos) e Inter (texto). No aplica el dark mode de AIVI.
+- **Look cinematográfico** (rama `feat/landing-cinematografica`, que sustituye al editorial crema): fondos oscuros `bg-negro` (`#0b0a08`) y `bg-carbon` (`#15120e`) con texto `text-papel`; dorado `oro` (`#c9a15a`), `oro-claro` (`#e8cd92`); crema `papel` (`#f6f0e4`) solo en secciones claras; Playfair Display (`font-serif`), Montserrat (`font-sans`) y Caveat (`font-manuscrita`). `Button` tiene las variantes `primary` (dorado sólido), `secondary` (contorno dorado sobre oscuro) y `oscuro` (negro sobre crema). No aplica el dark mode de AIVI.
+- **Estilo de las pantallas nuevas (biblioteca, confirmación, lector, vista previa):** son oscuras. Donde el código de este plan use las clases del look anterior, tradúcelas así: `bg-papel`/`bg-papel-oscuro` → `bg-negro`/`bg-carbon`; `text-tinta` → `text-papel`; `text-tinta-suave` → `text-papel/75`; `border-linea` → `border-oro/35`; `bg-white/60` → `bg-carbon`; `text-cancha`/`border-cancha` → `text-oro-claro`/`border-oro`; `text-dorado` → `text-oro-claro`; `accent-cancha` → `accent-oro`. Los campos de texto llevan `bg-carbon border-oro/40 text-papel`. Las pruebas no dependen de las clases, solo de roles y textos.
 - Diseño primero para celular: todo debe verse bien a 390 px de ancho, sin scroll horizontal, con 16 px de márgenes.
 - **Solo lectura online, sin descarga.** Las páginas se sirven únicamente por rutas del servidor. El PDF original nunca se sube ni se sirve.
 - **Marca de agua con el email del comprador** en cada página del libro completo (opacidad de la marca: 0.13). La vista previa se sirve sin marca de agua.
@@ -120,6 +121,8 @@ git commit -m "docs: plan de la fase 2 (lector y protección) y ajustes al dise�
 ---
 
 ### Task 1: Portada real
+
+> **Hecha en la rama `feat/landing-cinematografica`** (recorte de la portada, `Portada` con dimensiones, `Cover`, imagen para compartir y `public/portada.webp`). Al ejecutar este plan, sáltala y comprueba que `npm run portada` y `public/portada.webp` ya existen. La imagen para compartir de esa rama ya usa el estilo oscuro.
 
 Adelanto de la Fase 4 que ya se puede hacer: el dueño entregó el archivo de imprenta de la cubierta.
 

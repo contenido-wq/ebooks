@@ -3,9 +3,10 @@ import type { Book } from "./types"
 export const FEATURED_SLUG = "si-dios-jugara-futbol"
 
 // Los textos salen del propio libro (Si Dios jugara futbol.pdf, primera edición, junio de 2026).
+// Las tarjetas de los tres pases se verificaron contra los minutos 03 (p. 29 a 31), 18 (p. 99 a 101) y 31 (p. 173 a 175).
+// El minuto 18 trata un tema muy delicado en el libro: la tarjeta lo menciona solo como "una herida de su pasado".
 // testimonios va vacío a propósito: el "Camerino" del libro trae comentarios de futbolistas con nombre,
 // y usarlos en una página de ventas requiere el visto bueno del dueño. Con la lista vacía la sección no se muestra.
-// portada es null hasta que el dueño entregue el archivo de la portada: mientras tanto se genera con texto.
 // precioCop es un valor de prueba: el dueño debe fijar el precio real antes de lanzar.
 const siDiosJugaraFutbol: Book = {
   slug: FEATURED_SLUG,
@@ -13,39 +14,9 @@ const siDiosJugaraFutbol: Book = {
   subtitulo:
     "45 relatos, uno por cada minuto del primer tiempo, para que te pongas los guayos y juegues el partido de tu vida.",
   autor: "Juan Guillermo Ricaurte y Jeins Durán",
-  sinopsis: [
-    "Medellín, 2011. Juan Guillermo Ricaurte conduce un viejo Mazda azul cargado de tablones y pide que no se lo encuentre el bus del Atlético Nacional. Hace poco, el estadio entero gritaba su nombre; hoy vive con su esposa y sus dos hijas en una sola pieza. ¿Cómo llegó hasta ahí?",
-    "Para responderlo, el libro vuelve a Cisneros, el pueblo del ferrocarril donde un niño vendía avena fría a los pasajeros del tren y soñaba con jugar en el verde. Pasa por la gloria en el Nacional, por las lesiones y las sombras que llegaron con ella, y por el encuentro que lo cambió todo.",
-    "Está escrito como el primer tiempo de un partido: 45 relatos breves, uno por minuto. Al final de cada uno, una invitación a ponerte los guayos y jugar en la cancha de tu propia vida. Puedes leer un minuto al día o jugarte todo el tiempo de corrido.",
-  ].join("\n\n"),
-  portada: null,
+  portada: { src: "/portada.webp", ancho: 879, alto: 1417 },
   precioUsd: 19.99,
   precioCop: 79900,
-  paraQuien: [
-    "Amas el fútbol y quieres conocer la historia detrás de la camiseta 14 del Atlético Nacional.",
-    "Sientes que tu mejor momento ya pasó y necesitas recordar que el partido no se acaba hasta el pitazo final.",
-    "Buscas una lectura para tu fe, en relatos breves que puedes leer un minuto al día.",
-    "Te inspiran las historias reales de familia, esfuerzo y segundas oportunidades.",
-  ],
-  encontraras: [
-    {
-      titulo: "45 relatos, 45 minutos",
-      descripcion:
-        "Cada capítulo es un minuto del primer tiempo: una escena real, breve y lista para leer en cualquier momento.",
-    },
-    {
-      titulo: "De la cancha al estadio y al ángel azul",
-      descripcion:
-        "De Cisneros al Atlético Nacional, del Mazda azul de 2011 y hasta el regreso al estadio Atanasio Girardot ante más de 45.000 personas.",
-    },
-    {
-      titulo: "Ponte los guayos",
-      descripcion:
-        "Al final de cada relato, una invitación a jugar tu propio partido en la cancha multicolor de tu vida.",
-    },
-  ],
-  sobreLosAutores:
-    'Juan Guillermo Ricaurte, "Juanchi", nació en Cisneros, Antioquia, en 1976. Jugó en el Atlético Nacional con la camiseta 14 y hoy es pastor en Medellín, donde acompaña a familias y a deportistas, entre ellos jugadores de la Selección Colombia. Jeins Durán es coautor y editor del libro: dio forma escrita a cada una de las vivencias que lo componen.',
   garantiaDias: 7,
   anioPublicacion: 2026,
   testimonios: [],
@@ -71,6 +42,129 @@ const siDiosJugaraFutbol: Book = {
         "Tienes 7 días de garantía. Escríbenos dentro de ese plazo y te devolvemos tu dinero.",
     },
   ],
+  landing: {
+    hero: {
+      tituloClaro: "¿En qué minuto",
+      tituloDorado: "de tu vida estás?",
+      bajada: "Él soñaba con jugar en Nacional. Dios lo llevó a una historia que nunca imaginó.",
+      etiqueta: "Libro digital · 45 relatos",
+      cta: "Quiero leer su historia",
+      fraseManuscrita: "La vida también se juega en equipo",
+      lateralSuperior: "Historias que también juegan",
+      lateralDerecha: ["Más que fútbol", "Historias que cambian vidas"],
+      imagenHorizontal: {
+        src: "/imagenes/hero-horizontal.webp",
+        ancho: 2400,
+        alto: 1350,
+        alt: "Juan Guillermo Ricaurte sentado en las gradas de un estadio, mirando hacia arriba",
+      },
+      imagenMovil: {
+        src: "/imagenes/hero-movil.webp",
+        ancho: 1440,
+        alto: 2400,
+        alt: "Juan Guillermo Ricaurte sentado en las gradas de un estadio, mirando hacia arriba",
+      },
+    },
+    historia: {
+      tituloClaro: "Cumplió su sueño. Pero la historia",
+      tituloDorado: "no terminó ahí.",
+      bajada: "Del fútbol profesional a las preguntas que cambian una vida.",
+      prologo: "Prólogo de Juan Guillermo Cuadrado",
+      imagen: {
+        src: "/imagenes/tableta.webp",
+        ancho: 2000,
+        alto: 1400,
+        alt: "Una tableta con la portada del libro sobre una mesa, junto a una taza y una planta",
+      },
+    },
+    pases: {
+      titulo: "Tres pases.",
+      subtitulo: "Una vida que cambió de dirección.",
+      tarjetas: [
+        {
+          minuto: 3,
+          nombre: "Cuando nace un sueño",
+          titulo: "Todo empezó frente a un televisor.",
+          texto: "A los 12 años, una final encendió su sueño de jugar en Nacional.",
+          pregunta: "¿Qué sueño sigue vivo en ti?",
+          imagen: {
+            src: "/imagenes/pase-03-televisor.webp",
+            ancho: 1200,
+            alto: 1500,
+            alt: "Un televisor antiguo mostrando un partido de fútbol, con un balón y una bufanda verde",
+          },
+        },
+        {
+          minuto: 18,
+          nombre: "Luz",
+          titulo: "Dios tocó lo que nadie veía.",
+          texto: "Un encuentro lo llevó a mirar de frente una herida de su pasado.",
+          pregunta: "¿Qué parte de tu historia necesita luz?",
+          imagen: {
+            src: "/imagenes/pase-18-puerta.webp",
+            ancho: 1200,
+            alto: 1500,
+            alt: "Una puerta abierta por la que entra la luz dorada del atardecer",
+          },
+        },
+        {
+          minuto: 31,
+          nombre: "Llamado",
+          titulo: "No quería ser pastor. Ya estaba cuidando de otros.",
+          texto: "Mientras se resistía al llamado, sus grupos en casas se llenaban de personas.",
+          pregunta: "¿Y si lo que has vivido también puede ayudar a alguien?",
+          imagen: {
+            src: "/imagenes/pase-31-sala.webp",
+            ancho: 1200,
+            alto: 1500,
+            alt: "Una sala con sillas en círculo y una cruz de madera en la pared",
+          },
+        },
+      ],
+      enlace: "Descubre lo que pasó entre un minuto y otro",
+    },
+    autor: {
+      lateral: "Disciplina también es una forma de fe",
+      titulo: "Antes de ser pastor, también tuvo preguntas.",
+      nombre: "Juan Guillermo Ricaurte",
+      descripcion:
+        "Futbolista profesional, esposo y pastor. Comparte los sueños, las crisis y la fe que han marcado su vida.",
+      escritoPor: "Escrito junto a Jeins Durán.",
+      imagen: {
+        src: "/imagenes/botines-cuaderno.webp",
+        ancho: 2400,
+        alto: 1000,
+        alt: "Botines de fútbol gastados junto a un cuaderno abierto y una pluma",
+      },
+    },
+    mirada: {
+      titulo: "Lees su historia.",
+      subtitulo: "Empiezas a mirar la tuya.",
+      columnas: [
+        { icono: "botin", titulo: "Tus sueños", texto: "Recuerda lo que mueve tu corazón." },
+        { icono: "jugada", titulo: "Tus procesos", texto: "Mira tu camino desde la fe." },
+        { icono: "grupo", titulo: "Tu manera de servir", texto: "Piensa en lo que puedes aportar a otros." },
+      ],
+      cajaTitulo: "Al final de cada relato: ¡Ponte los guayos!",
+      cajaTexto: "Una invitación a llevar la reflexión a tu propia vida.",
+      lateral: "La fe también entrena todos los días",
+    },
+    cierre: {
+      lateral: ["Historias reales", "Personas reales", "Un Dios real"],
+      tituloClaro: "Su primer tiempo está escrito.",
+      tituloDorado: "El tuyo sigue en juego.",
+      bajada: "Conoce la historia completa y date un espacio para pensar en la tuya.",
+      cta: "Quiero leer el libro",
+      nota: "Libro digital · 45 relatos",
+      imagen: {
+        src: "/imagenes/balon.webp",
+        ancho: 2400,
+        alto: 1200,
+        alt: "Un balón desgastado sobre el césped, junto a la línea de cal",
+      },
+    },
+    pie: { lema: "La vida también juega" },
+  },
 }
 
 export const books: Book[] = [siDiosJugaraFutbol]

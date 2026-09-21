@@ -30,7 +30,7 @@ export function StickyBuyBar({ precio }: { precio: string }) {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-linea bg-papel/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-oro/30 bg-negro/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur md:hidden">
       <ButtonLink href="#comprar" className="w-full">
         Comprar · {precio}
       </ButtonLink>

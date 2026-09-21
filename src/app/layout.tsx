@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
-import { Fraunces, Inter } from "next/font/google"
+import { Caveat, Montserrat, Playfair_Display } from "next/font/google"
 import { getSiteUrl } from "@/lib/site"
 import "./globals.css"
 
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" })
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" })
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", display: "swap" })
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", display: "swap" })
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -15,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
-      <body className="bg-papel font-sans text-tinta antialiased">{children}</body>
+    <html lang="es" className={`${playfair.variable} ${montserrat.variable} ${caveat.variable}`}>
+      <body className="bg-negro font-sans text-papel antialiased">{children}</body>
     </html>
   )
 }

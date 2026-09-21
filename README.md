@@ -19,6 +19,18 @@ Los datos del libro están en `src/content/books.ts`. Los textos salen del propi
 Para usar la portada real, guarda la imagen en `public/` y pon su ruta en `portada`
 (por ejemplo `"/portada.webp"`). Antes de lanzar, fija el precio real en pesos (`precioCop`).
 
+## Imágenes de la landing
+
+Las escenas viven en `public/imagenes/` (WebP) y la portada real en `public/portada.webp`. Se generan
+a partir de los archivos originales, que no están en el repositorio:
+
+    npm run portada -- "/ruta/Portada.pdf"              # recorta la portada del archivo de imprenta
+    python3 scripts/imagenes/componer-tableta.py "<carpeta>/02-tableta.png" public/portada.webp /tmp/tableta-real.png
+    npm run imagenes -- "<carpeta de las escenas>" /tmp/tableta-real.png
+
+La tableta lleva la portada real proyectada en su pantalla (la imagen original traía una portada inventada).
+El script de la tableta necesita Python con `numpy` y `pillow`.
+
 ## Links para la bio y QR
 
 Con la tienda publicada, estos links miden de dónde llega cada visita:
