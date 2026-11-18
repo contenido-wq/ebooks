@@ -101,6 +101,9 @@ cabeceras, dependencias). Correcciones aplicadas: cabeceras de seguridad (`next.
 (`limitar` en `normalizar.ts`), **neutralización de fórmulas** (`neutralizarFormula`: Google Sheets evalúa `=...` aunque la celda sea de
 texto, y el comprador escribe su propio nombre/correo/UTM), y el id de evento se toma del cuerpo firmado (no del encabezado).
 
+Ajustes de Cloudflare (zona `sidiosjugarafutbol.com`), aplicados con `npx cf zones settings edit <ajuste> -z sidiosjugarafutbol.com --body '{"value":"..."}'`:
+`always_use_https` = `on` (http redirige a https) y `min_tls_version` = `1.2` (antes 1.0). Para revertir: mismo comando con el valor anterior.
+
 Riesgos conocidos y aceptados:
 - `npm audit` marca avisos en herramientas de construcción (`vite`, `vinext`, `picomatch`, `satori`...). Se comprobó que no están en el
   código ejecutable del Worker (solo en mapas de código fuente que no se publican). `npm audit fix --force` bajaría `vinext`: no hacerlo.
