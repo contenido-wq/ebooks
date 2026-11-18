@@ -4,7 +4,6 @@ import { buildWhatsappUrl } from "@/lib/whatsapp"
 import { Autor } from "./autor"
 import { Cierre } from "./cierre"
 import { Faq } from "./faq"
-import { Guarantee } from "./guarantee"
 import { Hero } from "./hero"
 import { Historia } from "./historia"
 import { Mirada } from "./mirada"
@@ -30,7 +29,6 @@ export function BookLanding({ book }: { book: Book }) {
         <Cierre book={book} />
         <Testimonials book={book} />
         <PurchasePanel book={book} whatsappUrl={whatsappUrl} />
-        <Guarantee book={book} />
         <Faq book={book} />
       </main>
       <footer className="border-t border-oro/30 bg-negro pb-24 pt-10 text-papel md:pb-10">

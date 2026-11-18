@@ -77,7 +77,6 @@ export type Book = {
   precioUsd: number
   /** Precio en pesos colombianos, fijado a mano (no se convierte del dólar). */
   precioCop: number
-  garantiaDias: number
   /** Año de la edición impresa: es el año del copyright que se muestra en el pie de página. */
   anioPublicacion: number
   testimonios: Testimonial[]

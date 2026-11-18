@@ -12,7 +12,6 @@ describe("BookLanding", () => {
     expect(screen.getByRole("heading", { level: 2, name: /Antes de ser pastor/ })).toBeInTheDocument()
     expect(screen.getByRole("heading", { level: 2, name: /Lees su historia/ })).toBeInTheDocument()
     expect(screen.getByRole("heading", { level: 2, name: /Su primer tiempo está escrito/ })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: /garantía de 7 días/i })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Preguntas frecuentes" })).toBeInTheDocument()
   })
 

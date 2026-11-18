@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 import { makeBook } from "@/test/fixtures"
 import { Faq } from "./faq"
-import { Guarantee } from "./guarantee"
 import { PurchasePanel } from "./purchase-panel"
 import { Testimonials } from "./testimonials"
 
@@ -20,13 +19,6 @@ describe("Testimonials", () => {
     expect(screen.getByText(/Me cambió la mirada/)).toBeInTheDocument()
     expect(screen.getByText("Ana")).toBeInTheDocument()
     expect(screen.getByText(/Medellín/)).toBeInTheDocument()
-  })
-})
-
-describe("Guarantee", () => {
-  it("indica los días de garantía", () => {
-    render(<Guarantee book={makeBook({ garantiaDias: 7 })} />)
-    expect(screen.getByRole("heading", { name: /garantía de 7 días/i })).toBeInTheDocument()
   })
 })
 

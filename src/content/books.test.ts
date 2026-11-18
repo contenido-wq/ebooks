@@ -17,11 +17,10 @@ describe("catálogo de libros", () => {
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
-  it("cada libro tiene precios y garantía válidos", () => {
+  it("cada libro tiene precios válidos", () => {
     for (const book of books) {
       expect(book.precioUsd).toBeGreaterThan(0)
       expect(book.precioCop).toBeGreaterThan(0)
-      expect(book.garantiaDias).toBeGreaterThanOrEqual(1)
     }
   })
 

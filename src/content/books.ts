@@ -17,7 +17,6 @@ const siDiosJugaraFutbol: Book = {
   portada: { src: "/portada.webp", ancho: 879, alto: 1417 },
   precioUsd: 19.99,
   precioCop: 79900,
-  garantiaDias: 7,
   anioPublicacion: 2026,
   testimonios: [],
   faq: [
@@ -35,11 +34,6 @@ const siDiosJugaraFutbol: Book = {
       pregunta: "¿Qué hago si no me llega el email?",
       respuesta:
         "Entra a Mi biblioteca con el email que usaste al comprar y te enviamos un enlace nuevo al instante.",
-    },
-    {
-      pregunta: "¿Y si no es lo que esperaba?",
-      respuesta:
-        "Tienes 7 días de garantía. Escríbenos dentro de ese plazo y te devolvemos tu dinero.",
     },
   ],
   landing: {
