@@ -24,12 +24,15 @@ export function PurchasePanel({ book, whatsappUrl }: PurchasePanelProps) {
             </p>
             <p className="mt-2 text-sm text-papel/75">o {formatPrice(book.precioCop, "COP")} en Colombia</p>
             <div className="mt-8 flex flex-col gap-3">
-              <Button disabled>Pagar con tarjeta o Apple Pay</Button>
-              <Button variant="secondary" disabled>
-                Pagar con PSE o Nequi
-              </Button>
+              {book.urlCompra ? (
+                <ButtonLink href={book.urlCompra} rel="noopener">
+                  Comprar ahora
+                </ButtonLink>
+              ) : (
+                <Button disabled>Comprar ahora</Button>
+              )}
             </div>
-            <p className="mt-4 text-sm text-papel/75">Los pagos se activan pronto.</p>
+            <p className="mt-4 text-sm text-papel/75">Completas el pago en Wemany y recibes el acceso de inmediato.</p>
             {whatsappUrl ? (
               <ButtonLink
                 href={whatsappUrl}

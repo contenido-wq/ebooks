@@ -13,6 +13,7 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     portada: null,
     precioUsd: 19.99,
     precioCop: 79900,
+    urlCompra: "https://pagos.example.com/libro-de-prueba",
     anioPublicacion: 2026,
     testimonios: [],
     faq: [{ pregunta: "¿Cómo leo el libro?", respuesta: "En línea." }],

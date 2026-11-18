@@ -21,6 +21,7 @@ describe("catálogo de libros", () => {
     for (const book of books) {
       expect(book.precioUsd).toBeGreaterThan(0)
       expect(book.precioCop).toBeGreaterThan(0)
+      expect(book.urlCompra).toMatch(/^https:\/\//)
     }
   })
 

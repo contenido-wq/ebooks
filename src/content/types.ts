@@ -77,6 +77,8 @@ export type Book = {
   precioUsd: number
   /** Precio en pesos colombianos, fijado a mano (no se convierte del dólar). */
   precioCop: number
+  /** Enlace de pago (checkout) del libro en Wemany. Los botones de compra llevan aquí. */
+  urlCompra: string
   /** Año de la edición impresa: es el año del copyright que se muestra en el pie de página. */
   anioPublicacion: number
   testimonios: Testimonial[]

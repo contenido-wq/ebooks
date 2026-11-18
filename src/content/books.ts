@@ -17,6 +17,7 @@ const siDiosJugaraFutbol: Book = {
   portada: { src: "/portada.webp", ancho: 879, alto: 1417 },
   precioUsd: 19.99,
   precioCop: 79900,
+  urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
   anioPublicacion: 2026,
   testimonios: [],
   faq: [

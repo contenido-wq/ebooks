@@ -38,10 +38,14 @@ describe("PurchasePanel", () => {
     expect(screen.getByText(/\$79\.900 COP/)).toBeInTheDocument()
   })
 
-  it("deja los pagos deshabilitados hasta la fase de pagos", () => {
-    render(<PurchasePanel book={makeBook()} />)
-    expect(screen.getByRole("button", { name: /tarjeta/i })).toBeDisabled()
-    expect(screen.getByRole("button", { name: /pse/i })).toBeDisabled()
+  it("el botón de compra lleva al enlace de pago", () => {
+    render(<PurchasePanel book={makeBook({ urlCompra: "https://pagos.example.com/x" })} />)
+    expect(screen.getByRole("link", { name: /comprar ahora/i })).toHaveAttribute("href", "https://pagos.example.com/x")
+  })
+
+  it("deshabilita la compra si no hay enlace de pago", () => {
+    render(<PurchasePanel book={makeBook({ urlCompra: "" })} />)
+    expect(screen.getByRole("button", { name: /comprar ahora/i })).toBeDisabled()
   })
 
   it("muestra el botón de WhatsApp solo si hay enlace", () => {
