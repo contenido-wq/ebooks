@@ -1,7 +1,10 @@
-import { construirFila } from "./normalizar"
+import { COLUMNAS, construirFila } from "./normalizar"
 
 export type EntornoWebhook = {
+  /** Código que va en la dirección del webhook. */
   WEBHOOK_TOKEN?: string
+  /** Secreto de firma que muestra Wemany al crear el webhook. Si falta o es "pendiente", solo se exige el código de la dirección. */
+  WEBHOOK_SIGNING_SECRET?: string
   SHEETS_SCRIPT_URL?: string
   SHEETS_SCRIPT_TOKEN?: string
 }
@@ -13,6 +16,9 @@ export type DependenciasWebhook = {
 
 const MAX_CUERPO = 200_000
 const PREFIJO_SCRIPT = "https://script.google.com/macros/s/"
+/** Wemany da 10 s de espera: la hoja tiene 8 s; si se pasa, se responde 502 y Wemany reintenta (sin duplicar por el id). */
+const ESPERA_HOJA_MS = 8_000
+const TOLERANCIA_SEGUNDOS = 300
 
 /** Comparación que no se corta en la primera diferencia, para no filtrar el código por tiempos. */
 export function igualesConstante(a: string, b: string): boolean {
@@ -22,6 +28,78 @@ export function igualesConstante(a: string, b: string): boolean {
     diferencia |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0)
   }
   return diferencia === 0
+}
+
+function aHex(bytes: ArrayBuffer): string {
+  return Array.from(new Uint8Array(bytes), (b) => b.toString(16).padStart(2, "0")).join("")
+}
+
+async function hmacHex(clave: Uint8Array<ArrayBuffer>, mensaje: Uint8Array<ArrayBuffer>): Promise<string> {
+  const llave = await crypto.subtle.importKey("raw", clave, { name: "HMAC", hash: "SHA-256" }, false, ["sign"])
+  return aHex(await crypto.subtle.sign("HMAC", llave, mensaje))
+}
+
+function desdeBase64(texto: string): Uint8Array<ArrayBuffer> | null {
+  try {
+    const binario = atob(texto)
+    const bytes = new Uint8Array(binario.length)
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i)
+    return bytes
+  } catch {
+    return null
+  }
+}
+
+export type ResultadoFirma = "ok" | "sin_firma" | "formato" | "vencida" | "invalida"
+
+/**
+ * Valida `X-Wemany-Signature: t=<segundos>,v1=<firma>` (mismo esquema que Stripe):
+ * firma = HMAC_SHA256(secreto, `${t}.${cuerpoCrudo}`), comparada en tiempo constante, con 300 s de margen.
+ * Se firma sobre los bytes exactos recibidos, no sobre un JSON reconstruido.
+ */
+export async function verificarFirma(
+  cabecera: string | null,
+  cuerpo: Uint8Array<ArrayBuffer>,
+  secreto: string,
+  ahoraMs: number,
+): Promise<ResultadoFirma> {
+  if (!cabecera) return "sin_firma"
+
+  let t: string | undefined
+  const firmas: string[] = []
+  for (const parte of cabecera.split(",")) {
+    const i = parte.indexOf("=")
+    if (i === -1) continue
+    const clave = parte.slice(0, i).trim()
+    const valor = parte.slice(i + 1).trim()
+    if (clave === "t") t = valor
+    if (clave === "v1") firmas.push(valor.toLowerCase())
+  }
+  if (!t || !/^\d+$/.test(t) || firmas.length === 0) return "formato"
+
+  const marca = Number(t)
+  const marcaSegundos = marca > 1e11 ? marca / 1000 : marca // por si llegara en milisegundos
+  if (Math.abs(ahoraMs / 1000 - marcaSegundos) > TOLERANCIA_SEGUNDOS) return "vencida"
+
+  const codificador = new TextEncoder()
+  const prefijo = codificador.encode(`${t}.`)
+  const mensaje = new Uint8Array(prefijo.length + cuerpo.length)
+  mensaje.set(prefijo, 0)
+  mensaje.set(cuerpo, prefijo.length)
+
+  // Como Stripe, la clave es el texto del secreto tal cual. Por compatibilidad también se prueba la versión
+  // en base64 cuando el secreto empieza por "whsec_" (otros proveedores lo usan así).
+  const claves = [codificador.encode(secreto)]
+  if (secreto.startsWith("whsec_")) {
+    const decodificada = desdeBase64(secreto.slice(6))
+    if (decodificada && decodificada.length > 0) claves.push(decodificada)
+  }
+
+  for (const clave of claves) {
+    const esperada = await hmacHex(clave, mensaje)
+    if (firmas.some((f) => igualesConstante(f, esperada))) return "ok"
+  }
+  return "invalida"
 }
 
 function responder(estado: number, cuerpo: Record<string, unknown>): Response {
@@ -35,9 +113,15 @@ function leerCuerpo(texto: string, tipo: string): unknown {
   return JSON.parse(texto)
 }
 
+function secretoDeFirma(env: EntornoWebhook): string | null {
+  const s = env.WEBHOOK_SIGNING_SECRET?.trim()
+  return s && s !== "pendiente" ? s : null
+}
+
 /**
- * Recibe un evento de Wemany. El `token` viene en la dirección: Wemany no permite firmar ni agregar
- * encabezados, así que el código secreto en la URL es lo que impide que cualquiera escriba en la hoja.
+ * Recibe un evento de Wemany.
+ * 1) El `token` de la dirección filtra el tráfico que no es nuestro.
+ * 2) Si hay secreto de firma, la firma de Wemany es obligatoria: es lo que prueba que el evento es de Wemany.
  */
 export async function recibirWebhook(
   req: Request,
@@ -56,12 +140,18 @@ export async function recibirWebhook(
   const declarado = Number(req.headers.get("content-length") ?? 0)
   if (declarado > MAX_CUERPO) return responder(413, { ok: false, error: "demasiado_grande" })
 
-  const texto = await req.text()
-  if (texto.length > MAX_CUERPO) return responder(413, { ok: false, error: "demasiado_grande" })
+  const bytes = new Uint8Array(await req.arrayBuffer())
+  if (bytes.length > MAX_CUERPO) return responder(413, { ok: false, error: "demasiado_grande" })
+
+  const secreto = secretoDeFirma(env)
+  if (secreto) {
+    const firma = await verificarFirma(req.headers.get("x-wemany-signature"), bytes, secreto, ahora().getTime())
+    if (firma !== "ok") return responder(401, { ok: false, error: `firma_${firma}` })
+  }
 
   let payload: unknown
   try {
-    payload = leerCuerpo(texto, req.headers.get("content-type") ?? "")
+    payload = leerCuerpo(new TextDecoder().decode(bytes), req.headers.get("content-type") ?? "")
   } catch {
     return responder(400, { ok: false, error: "cuerpo_invalido" })
   }
@@ -70,21 +160,23 @@ export async function recibirWebhook(
     return responder(503, { ok: false, error: "hoja_no_configurada" })
   }
 
-  const eventoEncabezado =
-    req.headers.get("x-wemany-event") ?? req.headers.get("x-event-type") ?? req.headers.get("x-webhook-event")
-  const fila = construirFila(payload, ahora(), { eventoEncabezado })
+  const fila = construirFila(payload, ahora(), {
+    eventoEncabezado: req.headers.get("x-wemany-event") ?? req.headers.get("x-event-type"),
+    idEventoEncabezado: req.headers.get("x-wemany-event-id"),
+  })
 
   try {
     const res = await hacerFetch(env.SHEETS_SCRIPT_URL, {
       method: "POST",
       headers: { "content-type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ token: env.SHEETS_SCRIPT_TOKEN, fila }),
+      body: JSON.stringify({ token: env.SHEETS_SCRIPT_TOKEN, columnas: COLUMNAS, fila }),
       redirect: "follow",
+      signal: AbortSignal.timeout(ESPERA_HOJA_MS),
     })
     const resultado = (await res.json()) as { ok?: boolean }
     if (!res.ok || resultado.ok !== true) return responder(502, { ok: false, error: "hoja_rechazo" })
   } catch {
-    // Un error 5xx le dice a Wemany que reintente más tarde; no se registra el contenido (datos personales).
+    // Un 5xx le dice a Wemany que reintente (al momento, 1 min, 5 min, 30 min, 2 h). No se registra el contenido: son datos personales.
     return responder(502, { ok: false, error: "hoja_no_responde" })
   }
 

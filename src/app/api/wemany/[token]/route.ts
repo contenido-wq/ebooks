@@ -7,6 +7,7 @@ async function leerEntorno(): Promise<EntornoWebhook> {
   const origen = process.env
   const desdeProcess: EntornoWebhook = {
     WEBHOOK_TOKEN: origen.WEBHOOK_TOKEN,
+    WEBHOOK_SIGNING_SECRET: origen.WEBHOOK_SIGNING_SECRET,
     SHEETS_SCRIPT_URL: origen.SHEETS_SCRIPT_URL,
     SHEETS_SCRIPT_TOKEN: origen.SHEETS_SCRIPT_TOKEN,
   }

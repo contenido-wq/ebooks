@@ -16,6 +16,7 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       // Webhook de Wemany -> hoja de cálculo. Los valores se guardan con `cf workers secrets update` (ver README).
       WEBHOOK_TOKEN: bindings.secret(),
+      WEBHOOK_SIGNING_SECRET: bindings.secret(),
       SHEETS_SCRIPT_URL: bindings.secret(),
       SHEETS_SCRIPT_TOKEN: bindings.secret(),
     },

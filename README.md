@@ -69,16 +69,27 @@ pago rechazado, nuevo miembro) y cada evento queda como una fila en la hoja "Web
     Wemany --POST--> /api/wemany/<token> (Worker) --POST--> Apps Script (integraciones/google-sheets/Code.gs) --> Hoja
 
 - Wemany no sigue redirecciones y los Apps Script siempre redirigen, por eso el Worker hace de intermediario.
-- El código en la URL es el único control de acceso (Wemany no permite firmar): tratarlo como contraseña.
-- Se guardan: fecha (Colombia), evento, nombre, email, teléfono, país, producto, monto, moneda, estado, id y el JSON completo.
-  Los datos se buscan por nombre en cualquier parte del JSON (`src/lib/wemany/normalizar.ts`); si Wemany usa otros nombres, se agregan ahí.
-- Un evento repetido (mismo `id_evento` y evento) no se duplica. Si la hoja falla, responde 502 para que Wemany reintente.
+- **Seguridad, dos capas:** el código en la dirección filtra el tráfico, y la firma `X-Wemany-Signature` (`t=<segundos>,v1=<hmac>`,
+  HMAC-SHA256 de `t.cuerpoCrudo`, margen de 300 s, igual que Stripe) prueba que el evento es de Wemany. La firma se exige apenas
+  `WEBHOOK_SIGNING_SECRET` tenga el secreto real; mientras valga `pendiente`, basta el código de la dirección.
+- **Duplicados:** el id sale del encabezado `X-Wemany-Event-Id` (estable entre reintentos). Mismo id + mismo evento no se repite.
+  `cart.abandoned` seguido de `purchase.approved` NO es un duplicado: son dos filas (una recuperación). Filtrar por email.
+- **Reintentos de Wemany:** 5 (al momento, 1 min, 5 min, 30 min, 2 h), espera máxima 10 s; tras 20 entregas agotadas desactivan el endpoint.
+  Por eso la hoja tiene 8 s de espera y, si falla, se responde 502 para que reintenten.
+- **Vacío no es cero:** monto y valor_neto quedan vacíos cuando no hubo cobro (carrito abandonado, pago rechazado, alta gratis sin importe).
+  No se usa el precio del plan como monto.
+- **UTM y origen los escribe el comprador** (`attributionOrigin: buyer_supplied`): se guardan como texto recortado, nunca se interpretan
+  como fórmulas ni disparan nada. No usarlos como dato de contacto.
+- Los datos se buscan por nombre en cualquier parte del JSON (`src/lib/wemany/normalizar.ts`) y siempre se guarda el JSON completo
+  en la columna `payload`. Las columnas las define la página: si se agregan campos, aparecen solos en la hoja.
 
 Secretos del Worker (nunca en git). Se fijan una vez y se conservan entre despliegues:
 
     npx cf workers secrets update WEBHOOK_TOKEN --worker sidiosjugarafutbol --type secret_text --text "<código largo y aleatorio>"
+    npx cf workers secrets update WEBHOOK_SIGNING_SECRET --worker sidiosjugarafutbol --type secret_text --text "<secreto que muestra Wemany>"
     npx cf workers secrets update SHEETS_SCRIPT_TOKEN --worker sidiosjugarafutbol --type secret_text --text "<el mismo TOKEN de Code.gs>"
     npx cf workers secrets update SHEETS_SCRIPT_URL --worker sidiosjugarafutbol --type secret_text --text "https://script.google.com/macros/s/.../exec"
 
 Apps Script: en la hoja, Extensiones > Apps Script, pegar `Code.gs` con `__TOKEN__` reemplazado, y publicar como
-aplicación web (ejecutar como: yo, acceso: cualquier persona). Si se edita el script hay que crear una nueva versión de la implementación.
+aplicación web (ejecutar como: yo, acceso: cualquier persona). Si se edita el script hay que crear una nueva versión de la
+implementación (Implementar > Administrar implementaciones > editar > Nueva versión); la URL no cambia.

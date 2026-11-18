@@ -11,11 +11,20 @@ export const COLUMNAS = [
   "nombre",
   "email",
   "telefono",
+  "telefono_facturacion",
   "pais",
   "producto",
   "monto",
+  "valor_neto",
   "moneda",
+  "metodo_pago",
   "estado",
+  "reactivacion",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "origen",
   "id_evento",
   "evento_original",
   "payload",
@@ -63,26 +72,52 @@ function aplanar(valor: unknown, ruta: string[] = [], salida: Hoja[] = []): Hoja
 }
 
 /** `evitar`: descarta si alguna carpeta de la ruta lo cumple. `dentro`: exige que alguna carpeta de la ruta lo cumpla. */
-type Regla = { claves: string[]; evitar?: RegExp; dentro?: RegExp }
+type Regla = {
+  claves: string[]
+  evitar?: RegExp
+  dentro?: RegExp
+  /** Si se indica, solo estas claves exigen `dentro`; las demás valen en cualquier lugar. */
+  soloDentro?: string[]
+}
 
 /** Sinónimos por campo, ya normalizados (sin tildes, minúsculas, sin símbolos). */
-const REGLAS: Record<"evento" | "nombre" | "email" | "telefono" | "pais" | "producto" | "productoAnidado" | "monto" | "moneda" | "estado" | "id", Regla> = {
-  evento: { claves: ["event", "eventtype", "evento", "tipo", "type", "topic", "action", "accion", "evento"] },
+const REGLAS: Record<
+  | "evento" | "nombre" | "email" | "telefono" | "telefonoFacturacion" | "pais" | "producto" | "productoAnidado"
+  | "monto" | "valorNeto" | "moneda" | "metodoPago" | "estado" | "reactivacion"
+  | "utmSource" | "utmMedium" | "utmCampaign" | "utmContent" | "origen" | "id",
+  Regla
+> = {
+  evento: { claves: ["type", "event", "eventtype", "evento", "tipo", "topic", "action", "accion"] },
   nombre: {
     claves: ["fullname", "nombrecompleto", "name", "nombre", "customername", "buyername", "clientname"],
     evitar: /product|producto|plan|offer|oferta|course|curso|community|comunidad|webhook/i,
   },
   email: { claves: ["email", "correo", "correoelectronico", "mail", "buyeremail", "customeremail"] },
+  // phone = teléfono del perfil; billingPhone = el que escribió al pagar (pueden ser distintos).
   telefono: { claves: ["phone", "telefono", "celular", "whatsapp", "mobile", "movil", "phonenumber", "tel"] },
+  telefonoFacturacion: { claves: ["billingphone", "telefonofacturacion"] },
   pais: { claves: ["country", "pais", "countrycode", "codigopais"] },
   producto: {
     claves: ["productname", "producto", "nombreproducto", "product", "offername", "oferta", "title", "titulo", "planname", "plan"],
   },
-  /** El producto a veces viene como { product: { name: "..." } }. */
+  /** El producto o el plan a veces vienen como { plan: { name: "..." } }. */
   productoAnidado: { claves: ["name", "nombre", "title", "titulo"], dentro: /product|producto|offer|oferta|plan|course|curso/i },
-  monto: { claves: ["amount", "monto", "total", "price", "precio", "value", "valor", "amountpaid"] },
+  // Lo cobrado de verdad. No se usa el precio del plan: un alta gratis tiene plan con precio pero cobro nulo.
+  monto: {
+    claves: ["amountpaid", "montopagado", "amount", "monto", "total", "price", "precio", "value", "valor"],
+    evitar: /plan|subscription|suscripcion/i,
+  },
+  valorNeto: { claves: ["netvalue", "valorneto"] },
   moneda: { claves: ["currency", "moneda", "currencycode"] },
+  metodoPago: { claves: ["paymentmethod", "metodopago", "metodo"] },
   estado: { claves: ["status", "estado", "state", "paymentstatus"] },
+  reactivacion: { claves: ["isreactivation", "reactivacion"] },
+  // Las UTM del propio evento. Se excluye el historial del cliente (customerAttribution): no es de esta compra.
+  utmSource: { claves: ["utmsource", "source"], soloDentro: ["source"], evitar: /customerattribution/i, dentro: /utm|queryparams/i },
+  utmMedium: { claves: ["utmmedium", "medium"], soloDentro: ["medium"], evitar: /customerattribution/i, dentro: /utm|queryparams/i },
+  utmCampaign: { claves: ["utmcampaign", "campaign"], soloDentro: ["campaign"], evitar: /customerattribution/i, dentro: /utm|queryparams/i },
+  utmContent: { claves: ["utmcontent", "content"], soloDentro: ["content"], evitar: /customerattribution/i, dentro: /utm|queryparams/i },
+  origen: { claves: ["customorigin", "origen"], evitar: /customerattribution/i },
   id: {
     claves: ["eventid", "idevento", "transactionid", "idtransaccion", "orderid", "paymentid", "purchaseid", "id", "uuid"],
   },
@@ -96,7 +131,8 @@ function buscar(hojas: Hoja[], regla: Regla): Primitivo | undefined {
     if (prioridad === -1) continue
     const carpetas = hoja.ruta.slice(0, -1)
     if (regla.evitar && carpetas.some((p) => regla.evitar!.test(p))) continue
-    if (regla.dentro && !carpetas.some((p) => regla.dentro!.test(p))) continue
+    const exigeCarpeta = regla.dentro && (!regla.soloDentro || regla.soloDentro.includes(ultima))
+    if (exigeCarpeta && !carpetas.some((p) => regla.dentro!.test(p))) continue
     if (typeof hoja.valor === "string" && hoja.valor.trim() === "") continue
     const profundidad = hoja.ruta.length
     if (
@@ -161,13 +197,17 @@ function payloadSeguro(payload: unknown): string {
   return (limpio ?? "").slice(0, MAX_PAYLOAD)
 }
 
-/** Datos que no vienen en el cuerpo pero pueden decir el tipo de evento (por ejemplo, un encabezado). */
-export type Extras = { eventoEncabezado?: string | null }
+/** Datos que no vienen en el cuerpo pero sí en los encabezados de la petición. */
+export type Extras = { eventoEncabezado?: string | null; idEventoEncabezado?: string | null }
+
+/** Lo que escribe el comprador (UTM, origen) se recorta más: no es información confiable. */
+const MAX_ATRIBUCION = 200
 
 export function construirFila(payload: unknown, ahora: Date, extras: Extras = {}): Fila {
   const hojas = aplanar(payload)
-  const eventoOriginal = texto(extras.eventoEncabezado) || texto(buscar(hojas, REGLAS.evento))
+  const eventoOriginal = texto(buscar(hojas, REGLAS.evento)) || texto(extras.eventoEncabezado)
   const nombre = buscar(hojas, REGLAS.nombre) ?? juntarNombre(hojas)
+  const idEvento = texto(extras.idEventoEncabezado) || texto(buscar(hojas, REGLAS.id))
 
   return {
     fecha_recibida: fechaColombia(ahora),
@@ -175,12 +215,21 @@ export function construirFila(payload: unknown, ahora: Date, extras: Extras = {}
     nombre: texto(nombre),
     email: texto(buscar(hojas, REGLAS.email)).toLowerCase(),
     telefono: texto(buscar(hojas, REGLAS.telefono)),
+    telefono_facturacion: texto(buscar(hojas, REGLAS.telefonoFacturacion)),
     pais: texto(buscar(hojas, REGLAS.pais)),
     producto: texto(buscar(hojas, REGLAS.producto) ?? buscar(hojas, REGLAS.productoAnidado)),
     monto: numeroSiEsNumero(buscar(hojas, REGLAS.monto)),
+    valor_neto: numeroSiEsNumero(buscar(hojas, REGLAS.valorNeto)),
     moneda: texto(buscar(hojas, REGLAS.moneda)).toUpperCase(),
+    metodo_pago: texto(buscar(hojas, REGLAS.metodoPago)),
     estado: texto(buscar(hojas, REGLAS.estado)),
-    id_evento: texto(buscar(hojas, REGLAS.id)),
+    reactivacion: texto(buscar(hojas, REGLAS.reactivacion)),
+    utm_source: texto(buscar(hojas, REGLAS.utmSource), MAX_ATRIBUCION),
+    utm_medium: texto(buscar(hojas, REGLAS.utmMedium), MAX_ATRIBUCION),
+    utm_campaign: texto(buscar(hojas, REGLAS.utmCampaign), MAX_ATRIBUCION),
+    utm_content: texto(buscar(hojas, REGLAS.utmContent), MAX_ATRIBUCION),
+    origen: texto(buscar(hojas, REGLAS.origen), MAX_ATRIBUCION),
+    id_evento: idEvento,
     evento_original: eventoOriginal,
     payload: payloadSeguro(payload),
   }
