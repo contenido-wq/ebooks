@@ -12,16 +12,24 @@
     "typecheck": "tsc --noEmit",
     "qr": "tsx scripts/generar-qr.ts",
     "portada": "tsx scripts/extraer-portada.ts",
-    "imagenes": "tsx scripts/preparar-imagenes.ts"
+    "imagenes": "tsx scripts/preparar-imagenes.ts",
+    "dev:vinext": "vite dev --port 3001",
+    "build:vinext": "vite build",
+    "start:vinext": "vite preview",
+    "deploy:vinext": "vinext-cloudflare deploy"
   },
   "dependencies": {
+    "@vinext/cloudflare": "^1.4.0",
     "next": "16.3.5",
     "qrcode": "^1.5.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "sharp": "^0.35.4"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "sharp": "^0.35.4",
+    "vinext": "^1.4.6"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^2.0.0-rc.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -31,6 +39,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitejs/plugin-rsc": "^0.5.39",
+    "cf": "^1.0.0-rc.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "jsdom": "^29.1.1",
@@ -38,6 +48,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
+    "vite": "^8.3.0",
     "vitest": "^5.0.1"
-  }
+  },
+  "type": "module"
 }

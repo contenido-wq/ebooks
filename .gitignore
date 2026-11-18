@@ -45,3 +45,6 @@ next-env.d.ts
 
 # archivos generados (QR, tarjetas)
 /out
+/dist/
+.vinext/
+.cloudflare/

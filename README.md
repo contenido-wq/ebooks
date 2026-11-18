@@ -46,3 +46,16 @@ Para generar el QR y la tarjeta 9:16 para historias:
 
 Los archivos quedan en `out/qr/`. El QR apunta a `/qr`, una redirección que se puede cambiar de destino
 sin reimprimir el código.
+
+## Publicar en Cloudflare (sidiosjugarafutbol.com)
+
+La página corre en Cloudflare Workers con vinext. El dominio y el Worker están en la misma cuenta de Cloudflare.
+
+    npx cf auth create ebooks      # solo la primera vez (abre el navegador)
+    npx cf auth activate ebooks    # enlaza el perfil con esta carpeta
+    NEXT_PUBLIC_SITE_URL=https://sidiosjugarafutbol.com npm run deploy:vinext
+
+- Hay que pasar `NEXT_PUBLIC_SITE_URL` al desplegar: `.env.local` (para desarrollo) tiene `localhost` y ganaría.
+- Cuando se defina el WhatsApp, agregar también `NEXT_PUBLIC_WHATSAPP_NUMBER=57...` en el mismo comando.
+- La imagen para compartir (`src/app/opengraph-image.png`) es un archivo fijo, sin precio. Si cambia la portada, hay que regenerarla.
+- Dominio y `www` se declaran en `cloudflare.config.ts` (`domains`).
