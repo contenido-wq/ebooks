@@ -93,3 +93,17 @@ Secretos del Worker (nunca en git). Se fijan una vez y se conservan entre despli
 Apps Script: en la hoja, Extensiones > Apps Script, pegar `Code.gs` con `__TOKEN__` reemplazado, y publicar como
 aplicación web (ejecutar como: yo, acceso: cualquier persona). Si se edita el script hay que crear una nueva versión de la
 implementación (Implementar > Administrar implementaciones > editar > Nueva versión); la URL no cambia.
+
+## Seguridad (pentest del 17-nov-2026)
+
+Se probó el sitio publicado y el webhook (acceso sin credenciales, firma, replay, JSON hostil, inyección en la hoja, fuga de secretos,
+cabeceras, dependencias). Correcciones aplicadas: cabeceras de seguridad (`next.config.ts`), tope de profundidad al copiar el JSON
+(`limitar` en `normalizar.ts`), **neutralización de fórmulas** (`neutralizarFormula`: Google Sheets evalúa `=...` aunque la celda sea de
+texto, y el comprador escribe su propio nombre/correo/UTM), y el id de evento se toma del cuerpo firmado (no del encabezado).
+
+Riesgos conocidos y aceptados:
+- `npm audit` marca avisos en herramientas de construcción (`vite`, `vinext`, `picomatch`, `satori`...). Se comprobó que no están en el
+  código ejecutable del Worker (solo en mapas de código fuente que no se publican). `npm audit fix --force` bajaría `vinext`: no hacerlo.
+- La CSP usa `'unsafe-inline'` en scripts y estilos porque el arranque de vinext/React lo necesita.
+- Las URL con barra final (`/api/wemany/<token>/`) redirigen (308) y Wemany cuenta las redirecciones como fallo: usar la URL sin barra final.
+- Sin límite de peticiones propio: las no autorizadas se descartan antes de leer el cuerpo; Cloudflare absorbe el tráfico.

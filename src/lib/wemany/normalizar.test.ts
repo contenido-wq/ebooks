@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { construirFila, etiquetaEvento, fechaColombia } from "./normalizar"
+import { construirFila, etiquetaEvento, fechaColombia, neutralizarFormula } from "./normalizar"
 
 const AHORA = new Date("2026-11-18T04:15:02Z") // 23:15:02 en Colombia
 
@@ -99,5 +99,65 @@ describe("construirFila", () => {
   it("no falla con valores que no son objetos", () => {
     expect(construirFila("hola", AHORA).evento).toBe("Sin evento")
     expect(construirFila(null, AHORA).evento).toBe("Sin evento")
+  })
+})
+
+describe("JSON hostil", () => {
+  it("un JSON anidado decenas de miles de niveles no agota la pila", () => {
+    const profundo = JSON.parse("[".repeat(50_000) + "]".repeat(50_000))
+    expect(() => construirFila(profundo, new Date())).not.toThrow()
+    expect(construirFila(profundo, new Date()).evento).toBe("Sin evento")
+  })
+
+  it("el payload guardado tiene tope de elementos y de largo", () => {
+    const ancho: Record<string, string> = {}
+    for (let i = 0; i < 5000; i++) ancho[`k${i}`] = "v".repeat(100)
+    expect(String(construirFila(ancho, new Date()).payload).length).toBeLessThanOrEqual(40_000)
+  })
+
+  it("no contamina Object.prototype con __proto__", () => {
+    construirFila(JSON.parse('{"__proto__":{"contaminado":true}}'), new Date())
+    expect(({} as Record<string, unknown>).contaminado).toBeUndefined()
+  })
+})
+
+describe("inyección de fórmulas en la hoja", () => {
+  it.each([
+    ['=HYPERLINK("http://evil.example","clic")', `'=HYPERLINK("http://evil.example","clic")`],
+    ["=IMPORTXML(\"http://evil\",\"//a\")", `'=IMPORTXML("http://evil","//a")`],
+    ["=1+1", "'=1+1"],
+    ["@SUM(1+1)", "'@SUM(1+1)"],
+    ["+cmd|' /C calc'!A0", "'+cmd|' /C calc'!A0"],
+    ["-2+3", "'-2+3"],
+    ["  =1+1", "'=1+1"],
+    ["\t=1+1", "'=1+1"],
+  ])("neutraliza %s", (entrada, esperado) => {
+    expect(neutralizarFormula(entrada.replace(/^[\t ]+/, ""))).toBe(esperado)
+  })
+
+  it.each(["+573001112233", "+57 300 111 2233", "-5", "(300) 111-2233", "Ana Gómez", "hola=mundo", "a@b.co"])(
+    "no toca %s",
+    (entrada) => {
+      expect(neutralizarFormula(entrada)).toBe(entrada)
+    },
+  )
+
+  it("se aplica a nombre, correo, producto, UTM y origen que escribe el comprador", () => {
+    const fila = construirFila(
+      {
+        type: "purchase.approved",
+        data: {
+          customer: { fullName: '=HYPERLINK("http://evil","x")', email: "=cmd@x.co", phone: "+573001112233" },
+          plan: { name: "-2+3" },
+          utm: { utm_source: "=1+1", utm_campaign: "@x" },
+          customOrigin: "=2+2",
+        },
+      },
+      new Date(),
+    )
+    for (const campo of ["nombre", "email", "producto", "utm_source", "utm_campaign", "origen"] as const) {
+      expect(String(fila[campo]).startsWith("'"), `${campo}: ${fila[campo]}`).toBe(true)
+    }
+    expect(fila.telefono).toBe("+573001112233") // un teléfono legítimo no se altera
   })
 })

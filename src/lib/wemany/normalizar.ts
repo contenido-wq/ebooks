@@ -153,10 +153,27 @@ function juntarNombre(hojas: Hoja[]): string | undefined {
   return [nombre, apellido].filter((x) => x !== undefined).join(" ")
 }
 
+/**
+ * Inyección de fórmulas: Google Sheets evalúa como fórmula cualquier texto que empiece por "=" aunque la celda tenga
+ * formato de texto (comprobado en la hoja real: =HYPERLINK(...) se convertía en enlace y =1+1 en 2). Como el comprador
+ * escribe su propio nombre, correo y UTM, esos campos pueden traer fórmulas. Se les antepone un apóstrofo, que
+ * las vuelve texto literal; así también quedan inofensivas si la hoja se exporta a CSV y se abre en Excel.
+ * Los teléfonos y números sueltos (+57 300..., -5) se dejan tal cual.
+ */
+const PARECE_NUMERO_O_TELEFONO = /^[+-]?[\d\s().-]+$/
+
+export function neutralizarFormula(texto: string): string {
+  if (/^[=@]/.test(texto)) return `'${texto}`
+  if (/^[+-]/.test(texto) && !PARECE_NUMERO_O_TELEFONO.test(texto)) return `'${texto}`
+  return texto
+}
+
 function texto(valor: unknown, max = MAX_TEXTO): string {
   if (valor === undefined || valor === null) return ""
   // eslint-disable-next-line no-control-regex
-  return String(valor).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max)
+  const limpio = String(valor).replace(/[\u0000-\u001f\u007f]/g, " ").trim()
+  // Primero se neutraliza y luego se recorta, para que el apóstrofo no haga pasar el tope de largo.
+  return neutralizarFormula(limpio).slice(0, max)
 }
 
 function numeroSiEsNumero(valor: Primitivo | undefined): string | number {
@@ -192,9 +209,32 @@ export function fechaColombia(fecha: Date): string {
   return partes.replace("T", " ")
 }
 
+const MAX_PROFUNDIDAD_PAYLOAD = 12
+const MAX_ELEMENTOS = 300
+
+/**
+ * Copia el JSON con tope de profundidad y de elementos, y sin claves sensibles.
+ * Sin este tope, un JSON anidado miles de niveles hacía que JSON.stringify agotara la pila.
+ */
+function limitar(valor: unknown, profundidad = 0): unknown {
+  if (valor === null || typeof valor !== "object") return typeof valor === "string" ? valor.slice(0, 2000) : valor
+  if (profundidad >= MAX_PROFUNDIDAD_PAYLOAD) return "[muy anidado]"
+  if (Array.isArray(valor)) return valor.slice(0, MAX_ELEMENTOS).map((v) => limitar(v, profundidad + 1))
+  const salida: Record<string, unknown> = {}
+  let n = 0
+  for (const [clave, v] of Object.entries(valor as Record<string, unknown>)) {
+    if (n++ >= MAX_ELEMENTOS) break
+    salida[clave] = CLAVE_SENSIBLE.test(clave) ? "[oculto]" : limitar(v, profundidad + 1)
+  }
+  return salida
+}
+
 function payloadSeguro(payload: unknown): string {
-  const limpio = JSON.stringify(payload, (clave, valor) => (CLAVE_SENSIBLE.test(clave) ? "[oculto]" : valor))
-  return (limpio ?? "").slice(0, MAX_PAYLOAD)
+  try {
+    return (JSON.stringify(limitar(payload)) ?? "").slice(0, MAX_PAYLOAD)
+  } catch {
+    return "[payload no se pudo copiar]"
+  }
 }
 
 /** Datos que no vienen en el cuerpo pero sí en los encabezados de la petición. */
@@ -207,7 +247,9 @@ export function construirFila(payload: unknown, ahora: Date, extras: Extras = {}
   const hojas = aplanar(payload)
   const eventoOriginal = texto(buscar(hojas, REGLAS.evento)) || texto(extras.eventoEncabezado)
   const nombre = buscar(hojas, REGLAS.nombre) ?? juntarNombre(hojas)
-  const idEvento = texto(extras.idEventoEncabezado) || texto(buscar(hojas, REGLAS.id))
+  // El id del cuerpo va dentro de lo firmado por Wemany; el encabezado no. Se prefiere el del cuerpo para que
+  // reenviar una petición firmada cambiando el encabezado no genere una fila nueva.
+  const idEvento = texto(buscar(hojas, REGLAS.id)) || texto(extras.idEventoEncabezado)
 
   return {
     fecha_recibida: fechaColombia(ahora),

@@ -119,8 +119,13 @@ describe("compra, carrito y rechazo (estructura supuesta de la documentación)",
     expect(String(fila.utm_source)).not.toMatch(/\n/)
   })
 
-  it("el id del encabezado X-Wemany-Event-Id manda sobre el del cuerpo", () => {
+  it("el id del cuerpo (firmado) manda sobre el del encabezado (no firmado)", () => {
     const fila = construirFila({ id: "del-cuerpo" }, AHORA, { idEventoEncabezado: "del-encabezado" })
+    expect(fila.id_evento).toBe("del-cuerpo")
+  })
+
+  it("si el cuerpo no trae id, se usa el X-Wemany-Event-Id", () => {
+    const fila = construirFila({ type: "cart.abandoned" }, AHORA, { idEventoEncabezado: "del-encabezado" })
     expect(fila.id_evento).toBe("del-encabezado")
   })
 })
@@ -208,7 +213,7 @@ describe("recibirWebhook con firma", () => {
       body: cuerpo,
     })
 
-  it("con secreto: acepta un evento bien firmado y usa el id del encabezado", async () => {
+  it("con secreto: acepta un evento bien firmado y usa el id del cuerpo firmado, no el del encabezado", async () => {
     const hoja = hojaOk()
     const res = await recibirWebhook(
       peticion({ "x-wemany-signature": `t=${T},v1=${firmar(CUERPO, T)}`, "x-wemany-event-id": "EVT-9" }),
@@ -218,7 +223,7 @@ describe("recibirWebhook con firma", () => {
     )
     expect(res.status).toBe(200)
     const enviado = JSON.parse(String((hoja.mock.calls[0] as unknown as [string, RequestInit])[1].body))
-    expect(enviado.fila.id_evento).toBe("EVT-9")
+    expect(enviado.fila.id_evento).toBe(MIEMBRO.id)
     expect(enviado.columnas).toContain("valor_neto")
   })
 
