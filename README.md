@@ -60,3 +60,25 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 - La imagen para compartir (`src/app/opengraph-image.png`) es un archivo fijo, sin precio. Si cambia la portada, hay que regenerarla.
 - Las imágenes se sirven sin optimizador (`images.unoptimized`): Cloudflare Images las recomprimía y se perdía la textura de la piel.
 - Dominio y `www` se declaran en `cloudflare.config.ts` (`domains`).
+
+## Webhook de Wemany -> Google Sheets
+
+Wemany avisa a `https://sidiosjugarafutbol.com/api/wemany/<WEBHOOK_TOKEN>` (compra aprobada, carrito abandonado,
+pago rechazado, nuevo miembro) y cada evento queda como una fila en la hoja "Webhook Si Dios jugara futbol".
+
+    Wemany --POST--> /api/wemany/<token> (Worker) --POST--> Apps Script (integraciones/google-sheets/Code.gs) --> Hoja
+
+- Wemany no sigue redirecciones y los Apps Script siempre redirigen, por eso el Worker hace de intermediario.
+- El código en la URL es el único control de acceso (Wemany no permite firmar): tratarlo como contraseña.
+- Se guardan: fecha (Colombia), evento, nombre, email, teléfono, país, producto, monto, moneda, estado, id y el JSON completo.
+  Los datos se buscan por nombre en cualquier parte del JSON (`src/lib/wemany/normalizar.ts`); si Wemany usa otros nombres, se agregan ahí.
+- Un evento repetido (mismo `id_evento` y evento) no se duplica. Si la hoja falla, responde 502 para que Wemany reintente.
+
+Secretos del Worker (nunca en git). Se fijan una vez y se conservan entre despliegues:
+
+    npx cf workers secrets update WEBHOOK_TOKEN --worker sidiosjugarafutbol --type secret_text --text "<código largo y aleatorio>"
+    npx cf workers secrets update SHEETS_SCRIPT_TOKEN --worker sidiosjugarafutbol --type secret_text --text "<el mismo TOKEN de Code.gs>"
+    npx cf workers secrets update SHEETS_SCRIPT_URL --worker sidiosjugarafutbol --type secret_text --text "https://script.google.com/macros/s/.../exec"
+
+Apps Script: en la hoja, Extensiones > Apps Script, pegar `Code.gs` con `__TOKEN__` reemplazado, y publicar como
+aplicación web (ejecutar como: yo, acceso: cualquier persona). Si se edita el script hay que crear una nueva versión de la implementación.
