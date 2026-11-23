@@ -34,7 +34,7 @@ const siDiosJugaraFutbol: Book = {
     {
       pregunta: "¿Puedo descargar el PDF?",
       respuesta:
-        "Sí. Al comprar llegas a una página de gracias donde descargas tu copia del libro en PDF, para tenerla siempre en tu celular o tu computador. Es de uso personal: por favor no la compartas.",
+        "Sí. Apenas completas tu compra puedes descargar tu copia del libro en PDF, para tenerla siempre en tu celular o tu computador. Es de uso personal: por favor no la compartas.",
     },
     {
       pregunta: "¿Qué hago si no me llega el email?",

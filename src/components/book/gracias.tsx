@@ -34,6 +34,9 @@ export function Gracias({ book, whatsappUrl }: GraciasProps) {
             <p className="mt-3 text-sm text-papel/75">
               Es de uso personal: por favor no la compartas, así cuidas el trabajo de quienes escribimos este libro.
             </p>
+            <p className="mt-3 text-sm text-papel/75">
+              El botón se abre en Google Drive: allí toca el ícono de descarga (la flecha hacia abajo) para guardarlo.
+            </p>
 
             <div className="mt-8 flex flex-col gap-3">
               <ButtonLink href={postCompra.urlDescarga} target="_blank" rel="noopener noreferrer">

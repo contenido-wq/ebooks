@@ -46,7 +46,11 @@ describe("datos de post-compra", () => {
   it("la FAQ dice que sí se puede descargar el PDF", () => {
     const respuesta = libro.faq.find((item) => item.pregunta === "¿Puedo descargar el PDF?")?.respuesta
     expect(respuesta).toMatch(/^Sí/)
-    expect(respuesta).not.toMatch(/^No\b/)
+  })
+
+  it("la FAQ pública no revela dónde está la página de descarga a quien no ha pagado", () => {
+    const respuesta = libro.faq.find((item) => item.pregunta === "¿Puedo descargar el PDF?")?.respuesta
+    expect(respuesta).not.toMatch(/gracias|página|\/gracias/i)
   })
 })
 

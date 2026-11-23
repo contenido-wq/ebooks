@@ -26,6 +26,11 @@ describe("Gracias", () => {
     expect(enlace.getAttribute("rel")).toContain("noopener")
   })
 
+  it("avisa que el PDF se abre en Google Drive y que allí se toca descargar", () => {
+    render(<Gracias book={libro()} />)
+    expect(screen.getByText(/se abre en google drive/i)).toBeInTheDocument()
+  })
+
   it("el botón de Wemany lleva a la cuenta del dueño en una pestaña nueva y segura", () => {
     render(<Gracias book={libro()} />)
     const enlace = screen.getByRole("link", { name: /entrar a mi cuenta en wemany/i })
