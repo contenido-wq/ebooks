@@ -53,9 +53,10 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 
     npx cf auth create ebooks      # solo la primera vez (abre el navegador)
     npx cf auth activate ebooks    # enlaza el perfil con esta carpeta
-    NEXT_PUBLIC_SITE_URL=https://sidiosjugarafutbol.com npm run deploy:vinext
+    NEXT_PUBLIC_SITE_URL=https://sidiosjugarafutbol.com NEXT_PUBLIC_DESCARGA_URL="<enlace del PDF en Drive>" npm run deploy:vinext
 
 - Hay que pasar `NEXT_PUBLIC_SITE_URL` al desplegar: `.env.local` (para desarrollo) tiene `localhost` y ganaría.
+- Hay que pasar también `NEXT_PUBLIC_DESCARGA_URL` (el enlace del PDF): se incrusta al compilar. Sin ella, `/gracias` sale como 404.
 - Cuando se defina el WhatsApp, agregar también `NEXT_PUBLIC_WHATSAPP_NUMBER=57...` en el mismo comando.
 - La imagen para compartir (`src/app/opengraph-image.png`) es un archivo fijo, sin precio. Si cambia la portada, hay que regenerarla.
 - Las imágenes se sirven sin optimizador (`images.unoptimized`): Cloudflare Images las recomprimía y se perdía la textura de la piel.
@@ -66,12 +67,14 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 Wemany lleva a quien acaba de comprar a `https://sidiosjugarafutbol.com/gracias`: confirmación, portada, botón para descargar el PDF,
 botón para entrar a su cuenta de Wemany y ayuda por WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_NUMBER`).
 
-- **El PDF vive en Google Drive.** El botón abre `postCompra.urlDescarga` (en `src/content/books.ts`). El archivo debe estar compartido como
-  "Cualquier persona con el enlace"; si no, el comprador ve "Solicitar acceso". Para cambiar el PDF, edita ese enlace y publica de nuevo.
+- **El PDF vive en Google Drive y su enlace NO está en el código** (este repositorio es público). Sale de la variable de entorno
+  `NEXT_PUBLIC_DESCARGA_URL`: en `.env.local` para desarrollo y en el comando de publicación para producción. Debe empezar por `https://`.
+  El archivo debe estar compartido como "Cualquier persona con el enlace"; si no, el comprador ve "Solicitar acceso".
+  Para cambiar el PDF, cambia la variable y publica de nuevo. Nunca escribas el enlace real en un archivo versionado.
 - **Cuenta de Wemany:** pon el enlace en `postCompra.urlCuentaWemany`. Mientras valga `null`, el botón no aparece.
 - **No se indexa** (`noindex, nofollow`), pero el enlace no es secreto: **quien lo comparta, comparte el libro**. La mejora pendiente es
   verificar el email del comprador contra el webhook de compras (guardarlo en Cloudflare KV) y entregar un enlace temporal.
-- Si el libro no tiene `postCompra`, `/gracias` responde 404.
+- Sin `NEXT_PUBLIC_DESCARGA_URL` (o si no es `https://`), el libro no tiene `postCompra` y `/gracias` responde 404.
 
 ## Webhook de Wemany -> Google Sheets
 

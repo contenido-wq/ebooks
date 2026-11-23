@@ -8,6 +8,12 @@ export const FEATURED_SLUG = "si-dios-jugara-futbol"
 // testimonios va vacío a propósito: el "Camerino" del libro trae comentarios de futbolistas con nombre,
 // y usarlos en una página de ventas requiere el visto bueno del dueño. Con la lista vacía la sección no se muestra.
 // precioCop es un valor de prueba: el dueño debe fijar el precio real antes de lanzar.
+
+// El enlace del PDF NO se guarda en el código: el repositorio es público. Sale de la variable de entorno
+// NEXT_PUBLIC_DESCARGA_URL, que se fija al compilar (ver README) y en .env.local para desarrollo.
+const enlaceDescarga = process.env.NEXT_PUBLIC_DESCARGA_URL?.trim()
+const urlDescarga = enlaceDescarga?.startsWith("https://") ? enlaceDescarga : null
+
 const siDiosJugaraFutbol: Book = {
   slug: FEATURED_SLUG,
   titulo: "Si Dios jugara fútbol",
@@ -18,18 +24,21 @@ const siDiosJugaraFutbol: Book = {
   precioUsd: 19.99,
   precioCop: 79900,
   urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
-  postCompra: {
-    urlDescarga: "https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing",
-    // Pendiente del dueño: enlace de su cuenta de Wemany. Con null el botón no aparece en /gracias.
-    urlCuentaWemany: null,
-  },
+  // Sin NEXT_PUBLIC_DESCARGA_URL (o si no es https) no hay datos de post-compra y /gracias responde 404.
+  postCompra: urlDescarga
+    ? {
+        urlDescarga,
+        // Pendiente del dueño: enlace de su cuenta de Wemany. Con null el botón no aparece en /gracias.
+        urlCuentaWemany: null,
+      }
+    : undefined,
   anioPublicacion: 2026,
   testimonios: [],
   faq: [
     {
       pregunta: "¿Cómo leo el libro?",
       respuesta:
-        "Al pagar recibes un email con un enlace de acceso. Lees en línea, desde tu celular o tu computador, sin descargar nada.",
+        "Al pagar descargas tu libro en PDF y lo lees donde quieras: celular, tableta o computador.",
     },
     {
       pregunta: "¿Puedo descargar el PDF?",
@@ -37,9 +46,8 @@ const siDiosJugaraFutbol: Book = {
         "Sí. Apenas completas tu compra puedes descargar tu copia del libro en PDF, para tenerla siempre en tu celular o tu computador. Es de uso personal: por favor no la compartas.",
     },
     {
-      pregunta: "¿Qué hago si no me llega el email?",
-      respuesta:
-        "Entra a Mi biblioteca con el email que usaste al comprar y te enviamos un enlace nuevo al instante.",
+      pregunta: "¿Qué hago si tengo problemas con la descarga?",
+      respuesta: "Escríbenos por WhatsApp y te ayudamos.",
     },
   ],
   landing: {

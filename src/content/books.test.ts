@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs"
 import path from "node:path"
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { FEATURED_SLUG, books, getBook, getFeaturedBook } from "./books"
 
 describe("catálogo de libros", () => {
@@ -31,26 +31,62 @@ describe("catálogo de libros", () => {
 })
 
 describe("datos de post-compra", () => {
-  const libro = getFeaturedBook()
+  const URL_PDF = "https://drive.google.com/file/d/ID_DE_PRUEBA/view?usp=sharing"
 
-  it("el PDF se entrega desde el enlace de Drive del dueño", () => {
-    expect(libro.postCompra?.urlDescarga).toBe(
-      "https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing",
-    )
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
   })
 
-  it("la cuenta de Wemany queda sin enlace hasta que el dueño lo dé", () => {
-    expect(libro.postCompra?.urlCuentaWemany).toBeNull()
+  // El enlace del PDF no vive en el código (el repositorio es público): sale de una variable de entorno.
+  async function cargarLibro(urlDescarga: string) {
+    vi.stubEnv("NEXT_PUBLIC_DESCARGA_URL", urlDescarga)
+    vi.resetModules()
+    return (await import("./books")).getFeaturedBook()
+  }
+
+  it("el enlace del PDF sale de NEXT_PUBLIC_DESCARGA_URL, no del código", async () => {
+    expect((await cargarLibro(URL_PDF)).postCompra?.urlDescarga).toBe(URL_PDF)
   })
 
-  it("la FAQ dice que sí se puede descargar el PDF", () => {
-    const respuesta = libro.faq.find((item) => item.pregunta === "¿Puedo descargar el PDF?")?.respuesta
-    expect(respuesta).toMatch(/^Sí/)
+  it("sin la variable no hay datos de post-compra (y /gracias responde 404)", async () => {
+    expect((await cargarLibro("")).postCompra).toBeUndefined()
   })
 
-  it("la FAQ pública no revela dónde está la página de descarga a quien no ha pagado", () => {
-    const respuesta = libro.faq.find((item) => item.pregunta === "¿Puedo descargar el PDF?")?.respuesta
-    expect(respuesta).not.toMatch(/gracias|página|\/gracias/i)
+  it("un enlace que no es https se descarta", async () => {
+    expect((await cargarLibro("javascript:alert(1)")).postCompra).toBeUndefined()
+    expect((await cargarLibro("http://drive.google.com/file/d/ID/view")).postCompra).toBeUndefined()
+  })
+
+  it("la cuenta de Wemany queda sin enlace hasta que el dueño lo dé", async () => {
+    expect((await cargarLibro(URL_PDF)).postCompra?.urlCuentaWemany).toBeNull()
+  })
+})
+
+describe("preguntas frecuentes", () => {
+  const { faq } = getFeaturedBook()
+  const respuestaDe = (pregunta: string) => faq.find((item) => item.pregunta === pregunta)?.respuesta
+
+  it("dice que sí se puede descargar el PDF", () => {
+    expect(respuestaDe("¿Puedo descargar el PDF?")).toMatch(/^Sí/)
+  })
+
+  it("no revela dónde está la página de descarga a quien no ha pagado", () => {
+    expect(respuestaDe("¿Puedo descargar el PDF?")).not.toMatch(/gracias|página|\/gracias/i)
+  })
+
+  it("explica que el libro se descarga en PDF, no que se lee en línea", () => {
+    const respuesta = respuestaDe("¿Cómo leo el libro?")
+    expect(respuesta).toMatch(/PDF/)
+    expect(respuesta).not.toMatch(/email|en línea|sin descargar/i)
+  })
+
+  it("manda a WhatsApp si hay problemas con la descarga", () => {
+    expect(respuestaDe("¿Qué hago si tengo problemas con la descarga?")).toMatch(/WhatsApp/)
+  })
+
+  it("ninguna respuesta menciona un lector o una biblioteca que no existen", () => {
+    expect(JSON.stringify(faq)).not.toMatch(/biblioteca|enlace de acceso/i)
   })
 })
 

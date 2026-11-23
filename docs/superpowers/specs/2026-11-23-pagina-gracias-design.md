@@ -19,7 +19,7 @@ Quien compra en Wemany llega a `/gracias`: confirmación, portada real, botón p
 
 ## Decisiones (del dueño)
 - Página de gracias a la que redirige Wemany tras el pago; portada + descarga + acceso a Wemany.
-- El PDF se entrega desde Google Drive: `https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing`.
+- El PDF se entrega desde Google Drive. **El enlace no se guarda en el repositorio** (es público): vive en la variable de entorno `NEXT_PUBLIC_DESCARGA_URL` (se fija al compilar y en `.env.local`). Sin la variable, o si no es `https://`, `/gracias` responde 404.
 - Protección ligera aceptada: quien comparta el link descarga gratis.
 
 ## Decisiones (mías, a revisar)

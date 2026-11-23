@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 afterEach(() => {
   vi.resetModules()
   vi.doUnmock("@/content/books")
+  vi.unstubAllEnvs()
 })
 
 describe("página /gracias", () => {
@@ -21,7 +22,8 @@ describe("página /gracias", () => {
     expect(() => Pagina()).toThrow(expect.objectContaining({ digest: expect.stringContaining("404") }))
   })
 
-  it("con datos de post-compra se arma la página sin lanzar error", async () => {
+  it("con el enlace del PDF configurado se arma la página sin lanzar error", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DESCARGA_URL", "https://drive.google.com/file/d/ID_DE_PRUEBA/view")
     const { default: Pagina } = await import("./page")
     expect(() => Pagina()).not.toThrow()
   })

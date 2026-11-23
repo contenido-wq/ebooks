@@ -16,7 +16,7 @@
 - Toda la UI en español neutro latinoamericano. Sin hashtags.
 - Estilo de la landing: fondo `bg-negro`/`bg-carbon`, borde `border-oro/35`, títulos `font-serif`, `texto-oro`, botones con `ButtonLink` (`primary` y `secondary`).
 - `/gracias`: `robots: { index: false, follow: false }`.
-- URL del PDF (valor exacto): `https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing`. Enlaces externos con `target="_blank"` y `rel="noopener noreferrer"`.
+- URL del PDF: NO va en el código (el repositorio es público); sale de `NEXT_PUBLIC_DESCARGA_URL` (solo `https://`; sin ella no hay `postCompra` y `/gracias` da 404). Enlaces externos con `target="_blank"` y `rel="noopener noreferrer"`.
 - El botón de WhatsApp solo aparece si hay `NEXT_PUBLIC_WHATSAPP_NUMBER` (usar `buildWhatsappUrl` de `src/lib/whatsapp.ts`).
 - Cada tarea termina con `npm test`, `npm run typecheck` y `npm run lint` en verde.
 - Rama: `feat/pagina-gracias`. Commits al final de cada tarea.

@@ -38,6 +38,12 @@ describe("PurchasePanel", () => {
     expect(screen.getByText(/\$79\.900 COP/)).toBeInTheDocument()
   })
 
+  it("promete descarga inmediata y no una lectura en línea que no existe", () => {
+    render(<PurchasePanel book={makeBook()} />)
+    expect(screen.getByText(/descarga inmediata/i)).toBeInTheDocument()
+    expect(screen.queryByText(/en línea/i)).toBeNull()
+  })
+
   it("el botón de compra lleva al enlace de pago", () => {
     render(<PurchasePanel book={makeBook({ urlCompra: "https://pagos.example.com/x" })} />)
     expect(screen.getByRole("link", { name: /comprar ahora/i })).toHaveAttribute("href", "https://pagos.example.com/x")

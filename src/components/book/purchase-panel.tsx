@@ -18,7 +18,7 @@ export function PurchasePanel({ book, whatsappUrl }: PurchasePanelProps) {
 
           <div className="text-center md:text-left">
             <h2 className="font-serif text-3xl font-bold leading-tight tracking-[-0.02em]">Lee {book.titulo} hoy</h2>
-            <p className="mt-2 text-papel/80">Acceso inmediato en línea, desde tu celular o tu computador.</p>
+            <p className="mt-2 text-papel/80">Descarga inmediata, para leer en tu celular o tu computador.</p>
             <p className="texto-oro mt-6 font-serif text-6xl font-extrabold leading-none tracking-[-0.03em]">
               {formatPrice(book.precioUsd, "USD")}
             </p>
