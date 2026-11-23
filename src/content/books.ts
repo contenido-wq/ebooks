@@ -18,6 +18,11 @@ const siDiosJugaraFutbol: Book = {
   precioUsd: 19.99,
   precioCop: 79900,
   urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
+  postCompra: {
+    urlDescarga: "https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing",
+    // Pendiente del dueño: enlace de su cuenta de Wemany. Con null el botón no aparece en /gracias.
+    urlCuentaWemany: null,
+  },
   anioPublicacion: 2026,
   testimonios: [],
   faq: [
@@ -29,7 +34,7 @@ const siDiosJugaraFutbol: Book = {
     {
       pregunta: "¿Puedo descargar el PDF?",
       respuesta:
-        "No. El libro se lee solo en línea y cada página lleva tu email para cuidar el trabajo de los autores.",
+        "Sí. Al comprar llegas a una página de gracias donde descargas tu copia del libro en PDF, para tenerla siempre en tu celular o tu computador. Es de uso personal: por favor no la compartas.",
     },
     {
       pregunta: "¿Qué hago si no me llega el email?",

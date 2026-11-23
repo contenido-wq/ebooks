@@ -30,6 +30,26 @@ describe("catálogo de libros", () => {
   })
 })
 
+describe("datos de post-compra", () => {
+  const libro = getFeaturedBook()
+
+  it("el PDF se entrega desde el enlace de Drive del dueño", () => {
+    expect(libro.postCompra?.urlDescarga).toBe(
+      "https://drive.google.com/file/d/ID_DEL_ARCHIVO/view?usp=sharing",
+    )
+  })
+
+  it("la cuenta de Wemany queda sin enlace hasta que el dueño lo dé", () => {
+    expect(libro.postCompra?.urlCuentaWemany).toBeNull()
+  })
+
+  it("la FAQ dice que sí se puede descargar el PDF", () => {
+    const respuesta = libro.faq.find((item) => item.pregunta === "¿Puedo descargar el PDF?")?.respuesta
+    expect(respuesta).toMatch(/^Sí/)
+    expect(respuesta).not.toMatch(/^No\b/)
+  })
+})
+
 describe("contenido de la landing", () => {
   const libro = getFeaturedBook()
 
