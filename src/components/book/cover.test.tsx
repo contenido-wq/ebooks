@@ -22,4 +22,14 @@ describe("Cover", () => {
     expect(imagen).toHaveAttribute("width", "879")
     expect(imagen).toHaveAttribute("height", "1417")
   })
+
+  it("carga la imagen de inmediato cuando está arriba del pliegue (eager) y en diferido si no", () => {
+    const portada = { src: "/portada.webp", ancho: 879, alto: 1417 }
+    const { unmount } = render(<Cover titulo="Libro de Prueba" autor="Autora Prueba" portada={portada} eager />)
+    expect(screen.getByAltText("Portada de Libro de Prueba")).toHaveAttribute("loading", "eager")
+    unmount()
+
+    render(<Cover titulo="Libro de Prueba" autor="Autora Prueba" portada={portada} />)
+    expect(screen.getByAltText("Portada de Libro de Prueba")).toHaveAttribute("loading", "lazy")
+  })
 })

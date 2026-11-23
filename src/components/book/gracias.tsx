@@ -19,7 +19,7 @@ export function Gracias({ book, whatsappUrl }: GraciasProps) {
         <div className="grid items-center gap-10 rounded-3xl border border-oro/35 bg-carbon p-6 sm:p-10 md:grid-cols-[minmax(0,15rem)_1fr] md:gap-12">
           <div className="mx-auto w-40 sm:w-48 md:w-full">
             <div className="cover-tilt">
-              <Cover titulo={book.titulo} autor={book.autor} portada={book.portada} />
+              <Cover titulo={book.titulo} autor={book.autor} portada={book.portada} eager />
             </div>
           </div>
 

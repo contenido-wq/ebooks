@@ -1,9 +1,15 @@
 import Image from "next/image"
 import type { Portada } from "@/content/types"
 
-type CoverProps = { titulo: string; autor: string; portada: Portada | null }
+type CoverProps = {
+  titulo: string
+  autor: string
+  portada: Portada | null
+  /** Carga la imagen de inmediato. Úsalo cuando la portada está arriba del pliegue (es la imagen principal de la pantalla). */
+  eager?: boolean
+}
 
-export function Cover({ titulo, autor, portada }: CoverProps) {
+export function Cover({ titulo, autor, portada, eager = false }: CoverProps) {
   if (portada) {
     return (
       <Image
@@ -12,6 +18,7 @@ export function Cover({ titulo, autor, portada }: CoverProps) {
         width={portada.ancho}
         height={portada.alto}
         sizes="(min-width: 768px) 260px, 60vw"
+        loading={eager ? "eager" : "lazy"}
         className="h-auto w-full rounded-md shadow-portada"
       />
     )
