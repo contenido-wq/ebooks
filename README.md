@@ -61,6 +61,18 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 - Las imágenes se sirven sin optimizador (`images.unoptimized`): Cloudflare Images las recomprimía y se perdía la textura de la piel.
 - Dominio y `www` se declaran en `cloudflare.config.ts` (`domains`).
 
+## Página de gracias (`/gracias`)
+
+Wemany lleva a quien acaba de comprar a `https://sidiosjugarafutbol.com/gracias`: confirmación, portada, botón para descargar el PDF,
+botón para entrar a su cuenta de Wemany y ayuda por WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_NUMBER`).
+
+- **El PDF vive en Google Drive.** El botón abre `postCompra.urlDescarga` (en `src/content/books.ts`). El archivo debe estar compartido como
+  "Cualquier persona con el enlace"; si no, el comprador ve "Solicitar acceso". Para cambiar el PDF, edita ese enlace y publica de nuevo.
+- **Cuenta de Wemany:** pon el enlace en `postCompra.urlCuentaWemany`. Mientras valga `null`, el botón no aparece.
+- **No se indexa** (`noindex, nofollow`), pero el enlace no es secreto: **quien lo comparta, comparte el libro**. La mejora pendiente es
+  verificar el email del comprador contra el webhook de compras (guardarlo en Cloudflare KV) y entregar un enlace temporal.
+- Si el libro no tiene `postCompra`, `/gracias` responde 404.
+
 ## Webhook de Wemany -> Google Sheets
 
 Wemany avisa a `https://sidiosjugarafutbol.com/api/wemany/<WEBHOOK_TOKEN>` (compra aprobada, carrito abandonado,
