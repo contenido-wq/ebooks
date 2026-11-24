@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
-import { igualesConstante, recibirWebhook } from "./recibir"
+import { esComprador } from "@/lib/acceso/compradores"
+import { almacenFalso } from "@/test/almacen-falso"
+import { esCompraAprobada, igualesConstante, recibirWebhook } from "./recibir"
 
 const ENTORNO = {
   WEBHOOK_TOKEN: "codigo-correcto",
@@ -104,5 +106,79 @@ describe("recibirWebhook", () => {
     expect((await recibirWebhook(peticion("{}"), "codigo-correcto", ENTORNO, { fetch: cae })).status).toBe(502)
     const rechaza = vi.fn(async () => Response.json({ ok: false }))
     expect((await recibirWebhook(peticion("{}"), "codigo-correcto", ENTORNO, { fetch: rechaza })).status).toBe(502)
+  })
+})
+
+describe("esCompraAprobada", () => {
+  it("acepta solo compras aprobadas", () => {
+    for (const bueno of ["purchase.approved", "payment.approved", "compra_aprobada", "Compra aprobada"]) {
+      expect(esCompraAprobada(bueno), bueno).toBe(true)
+    }
+  })
+
+  it("rechaza reembolsos, rechazos, cancelaciones y carritos", () => {
+    for (const malo of ["purchase.refunded", "purchase.declined", "payment.rejected", "pago_rechazado", "cart.abandoned", "chargeback.created", "purchase.canceled", "reembolso_aprobado", ""]) {
+      expect(esCompraAprobada(malo), malo).toBe(false)
+    }
+  })
+})
+
+describe("acceso del comprador (KV)", () => {
+  const aprobada = (extra: Record<string, unknown> = {}) =>
+    peticion(JSON.stringify({ type: "purchase.approved", data: { customer: { email: "Ana@Mail.com" } }, ...extra }))
+
+  it("una compra aprobada guarda la huella del correo, sin el correo en claro", async () => {
+    const kv = almacenFalso()
+    const res = await recibirWebhook(aprobada(), "codigo-correcto", { ...ENTORNO, COMPRADORES: kv }, { fetch: hojaOk(), ahora: AHORA })
+    expect(res.status).toBe(200)
+    expect(await esComprador(kv, "ana@mail.com")).toBe(true)
+    expect(JSON.stringify([...kv.claves(), ...kv.valores()]).toLowerCase()).not.toContain("mail.com")
+  })
+
+  it("un evento de prueba (test: true) no concede acceso, pero sí se anota en la hoja", async () => {
+    const kv = almacenFalso()
+    const hoja = hojaOk()
+    const res = await recibirWebhook(aprobada({ test: true }), "codigo-correcto", { ...ENTORNO, COMPRADORES: kv }, { fetch: hoja, ahora: AHORA })
+    expect(res.status).toBe(200)
+    expect(kv.claves()).toHaveLength(0)
+    expect(hoja).toHaveBeenCalledTimes(1)
+  })
+
+  it("reembolsos, rechazos y carritos abandonados no conceden acceso", async () => {
+    for (const tipo of ["purchase.refunded", "purchase.declined", "cart.abandoned"]) {
+      const kv = almacenFalso()
+      const cuerpo = peticion(JSON.stringify({ type: tipo, data: { customer: { email: "ana@mail.com" } } }))
+      await recibirWebhook(cuerpo, "codigo-correcto", { ...ENTORNO, COMPRADORES: kv }, { fetch: hojaOk(), ahora: AHORA })
+      expect(kv.claves(), tipo).toHaveLength(0)
+    }
+  })
+
+  it("una compra aprobada sin correo no concede nada y no falla", async () => {
+    const kv = almacenFalso()
+    const res = await recibirWebhook(peticion(JSON.stringify({ type: "purchase.approved" })), "codigo-correcto", { ...ENTORNO, COMPRADORES: kv }, { fetch: hojaOk(), ahora: AHORA })
+    expect(res.status).toBe(200)
+    expect(kv.claves()).toHaveLength(0)
+  })
+
+  it("sin almacén configurado el webhook sigue escribiendo la hoja", async () => {
+    const hoja = hojaOk()
+    const res = await recibirWebhook(aprobada(), "codigo-correcto", ENTORNO, { fetch: hoja, ahora: AHORA })
+    expect(res.status).toBe(200)
+    expect(hoja).toHaveBeenCalledTimes(1)
+  })
+
+  it("si el almacén falla responde 502 (Wemany reintenta) y no escribe la hoja", async () => {
+    const roto = { ...almacenFalso(), put: vi.fn(async () => { throw new Error("kv caído") }) }
+    const hoja = hojaOk()
+    const res = await recibirWebhook(aprobada(), "codigo-correcto", { ...ENTORNO, COMPRADORES: roto }, { fetch: hoja, ahora: AHORA })
+    expect(res.status).toBe(502)
+    expect(hoja).not.toHaveBeenCalled()
+  })
+
+  it("el acceso se concede aunque la hoja no esté configurada", async () => {
+    const kv = almacenFalso()
+    const res = await recibirWebhook(aprobada(), "codigo-correcto", { ...ENTORNO, SHEETS_SCRIPT_URL: "pendiente", COMPRADORES: kv }, { ahora: AHORA })
+    expect(res.status).toBe(503)
+    expect(await esComprador(kv, "ana@mail.com")).toBe(true)
   })
 })

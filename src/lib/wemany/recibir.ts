@@ -1,6 +1,10 @@
+import type { Almacen } from "@/lib/acceso/almacen"
+import { registrarCompra } from "@/lib/acceso/compradores"
 import { COLUMNAS, construirFila } from "./normalizar"
 
 export type EntornoWebhook = {
+  /** KV donde se anota (solo la huella) quién pagó. Sin esto, el webhook solo escribe la hoja. */
+  COMPRADORES?: Almacen
   /** Código que va en la dirección del webhook. */
   WEBHOOK_TOKEN?: string
   /** Secreto de firma que muestra Wemany al crear el webhook. Si falta o es "pendiente", solo se exige el código de la dirección. */
@@ -113,6 +117,23 @@ function leerCuerpo(texto: string, tipo: string): unknown {
   return JSON.parse(texto)
 }
 
+/**
+ * Solo una compra aprobada concede acceso al libro. Más estricto que la etiqueta de la hoja ("Compra aprobada" también
+ * incluiría un reembolso, porque contiene "purchase"): aquí un reembolso, rechazo, cancelación o carrito nunca cuenta.
+ */
+export function esCompraAprobada(evento: string): boolean {
+  const e = evento.toLowerCase()
+  if (/refund|reembols|chargeback|contracargo|declin|reject|rechaz|cancel|abandon/.test(e)) return false
+  return /approv|aprobad/.test(e)
+}
+
+/** Wemany marca sus eventos de prueba con `"test": true` y datos de muestra: no deben dar acceso. */
+function esEventoDePrueba(payload: unknown): boolean {
+  if (typeof payload !== "object" || payload === null) return false
+  const marca = (payload as Record<string, unknown>).test
+  return marca === true || marca === "true"
+}
+
 function secretoDeFirma(env: EntornoWebhook): string | null {
   const s = env.WEBHOOK_SIGNING_SECRET?.trim()
   return s && s !== "pendiente" ? s : null
@@ -156,14 +177,24 @@ export async function recibirWebhook(
     return responder(400, { ok: false, error: "cuerpo_invalido" })
   }
 
-  if (!env.SHEETS_SCRIPT_URL?.startsWith(PREFIJO_SCRIPT) || !env.SHEETS_SCRIPT_TOKEN) {
-    return responder(503, { ok: false, error: "hoja_no_configurada" })
-  }
-
   const fila = construirFila(payload, ahora(), {
     eventoEncabezado: req.headers.get("x-wemany-event") ?? req.headers.get("x-event-type"),
     idEventoEncabezado: req.headers.get("x-wemany-event-id"),
   })
+
+  // El acceso al libro va primero y no depende de la hoja. Si falla, se responde 502 y Wemany reintenta (es idempotente).
+  const correo = String(fila.email)
+  if (env.COMPRADORES && correo && !esEventoDePrueba(payload) && esCompraAprobada(String(fila.evento_original))) {
+    try {
+      await registrarCompra(env.COMPRADORES, correo)
+    } catch {
+      return responder(502, { ok: false, error: "acceso_no_guardado" })
+    }
+  }
+
+  if (!env.SHEETS_SCRIPT_URL?.startsWith(PREFIJO_SCRIPT) || !env.SHEETS_SCRIPT_TOKEN) {
+    return responder(503, { ok: false, error: "hoja_no_configurada" })
+  }
 
   try {
     const res = await hacerFetch(env.SHEETS_SCRIPT_URL, {
