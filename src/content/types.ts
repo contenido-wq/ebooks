@@ -66,12 +66,6 @@ export type LandingContent = {
   pie: { lema: string }
 }
 
-/** Lo que ve quien ya compró, en la página /gracias. */
-export type PostCompra = {
-  /** Enlace al PDF del libro (Google Drive). */
-  urlDescarga: string
-}
-
 export type Book = {
   slug: string
   titulo: string
@@ -85,8 +79,6 @@ export type Book = {
   precioCop: number
   /** Enlace de pago (checkout) del libro en Wemany. Los botones de compra llevan aquí. */
   urlCompra: string
-  /** Datos para la página de gracias. Sin esto, /gracias responde 404. */
-  postCompra?: PostCompra
   /** Año de la edición impresa: es el año del copyright que se muestra en el pie de página. */
   anioPublicacion: number
   testimonios: Testimonial[]

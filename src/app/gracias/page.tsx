@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 import { Gracias } from "@/components/book/gracias"
 import { getFeaturedBook } from "@/content/books"
 import { buildWhatsappUrl } from "@/lib/whatsapp"
@@ -12,11 +11,10 @@ export const metadata: Metadata = {
 
 export default function GraciasPage() {
   const book = getFeaturedBook()
-  if (!book.postCompra) notFound()
 
   const whatsappUrl = buildWhatsappUrl(
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "",
-    `Hola, compré "${book.titulo}" y necesito ayuda con mi descarga`,
+    `Hola, compré "${book.titulo}" y no encuentro mi descarga`,
   )
 
   return <Gracias book={book} whatsappUrl={whatsappUrl} />

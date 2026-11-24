@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs"
 import path from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import { FEATURED_SLUG, books, getBook, getFeaturedBook } from "./books"
 
 describe("catálogo de libros", () => {
@@ -30,36 +30,11 @@ describe("catálogo de libros", () => {
   })
 })
 
-describe("datos de post-compra", () => {
-  const URL_PDF = "https://drive.google.com/file/d/ID_DE_PRUEBA/view?usp=sharing"
-
-  afterEach(() => {
-    vi.unstubAllEnvs()
-    vi.resetModules()
-  })
-
-  // El enlace del PDF no vive en el código (el repositorio es público): sale de una variable de entorno.
-  async function cargarLibro(urlDescarga: string) {
-    vi.stubEnv("NEXT_PUBLIC_DESCARGA_URL", urlDescarga)
-    vi.resetModules()
-    return (await import("./books")).getFeaturedBook()
-  }
-
-  it("el enlace del PDF sale de NEXT_PUBLIC_DESCARGA_URL, no del código", async () => {
-    expect((await cargarLibro(URL_PDF)).postCompra?.urlDescarga).toBe(URL_PDF)
-  })
-
-  it("sin la variable no hay datos de post-compra (y /gracias responde 404)", async () => {
-    expect((await cargarLibro("")).postCompra).toBeUndefined()
-  })
-
-  it("un enlace que no es https se descarta", async () => {
-    expect((await cargarLibro("javascript:alert(1)")).postCompra).toBeUndefined()
-    expect((await cargarLibro("http://drive.google.com/file/d/ID/view")).postCompra).toBeUndefined()
-  })
-
-  it("los datos de post-compra solo traen el enlace del PDF (el acceso a Wemany llega por correo)", async () => {
-    expect((await cargarLibro(URL_PDF)).postCompra).toEqual({ urlDescarga: URL_PDF })
+describe("el PDF del libro", () => {
+  it("el libro no trae ningún enlace de descarga: el PDF vive en un bucket privado y se entrega con tickets", () => {
+    const libro = getFeaturedBook()
+    expect("postCompra" in libro).toBe(false)
+    expect(JSON.stringify(libro)).not.toMatch(/drive\.google\.com|\.pdf/i)
   })
 })
 

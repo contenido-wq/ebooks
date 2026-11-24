@@ -9,11 +9,6 @@ export const FEATURED_SLUG = "si-dios-jugara-futbol"
 // y usarlos en una página de ventas requiere el visto bueno del dueño. Con la lista vacía la sección no se muestra.
 // precioCop es un valor de prueba: el dueño debe fijar el precio real antes de lanzar.
 
-// El enlace del PDF NO se guarda en el código: el repositorio es público. Sale de la variable de entorno
-// NEXT_PUBLIC_DESCARGA_URL, que se fija al compilar (ver README) y en .env.local para desarrollo.
-const enlaceDescarga = process.env.NEXT_PUBLIC_DESCARGA_URL?.trim()
-const urlDescarga = enlaceDescarga?.startsWith("https://") ? enlaceDescarga : null
-
 const siDiosJugaraFutbol: Book = {
   slug: FEATURED_SLUG,
   titulo: "Si Dios jugara fútbol",
@@ -24,9 +19,8 @@ const siDiosJugaraFutbol: Book = {
   precioUsd: 19.99,
   precioCop: 79900,
   urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
-  // Sin NEXT_PUBLIC_DESCARGA_URL (o si no es https) no hay datos de post-compra y /gracias responde 404.
-  // El enlace de acceso a Wemany no va aquí: Wemany se lo manda a cada comprador por correo.
-  postCompra: urlDescarga ? { urlDescarga } : undefined,
+  // El PDF NO está aquí ni en ningún enlace: vive en un bucket privado y se entrega con un ticket de un solo uso
+  // a quien pagó (ver src/lib/acceso). El repositorio es público.
   anioPublicacion: 2026,
   testimonios: [],
   faq: [

@@ -1,14 +1,14 @@
-import { ButtonLink } from "@/components/ui/button"
 import type { Book } from "@/content/types"
 import { Cover } from "./cover"
+import { FormularioDescarga } from "./formulario-descarga"
 
 type GraciasProps = { book: Book; whatsappUrl?: string | null }
 
-/** Página que ve quien acaba de comprar: confirmación, portada, descarga del PDF y acceso a Wemany. */
+/**
+ * Página que ve quien acaba de comprar. Es abierta, así que NO contiene ningún enlace al libro: la persona escribe el
+ * correo con el que pagó y solo entonces el servidor le da un enlace de descarga de un solo uso (ver FormularioDescarga).
+ */
 export function Gracias({ book, whatsappUrl }: GraciasProps) {
-  const { postCompra } = book
-  if (!postCompra) return null
-
   return (
     <main className="min-h-screen bg-negro text-papel">
       <section className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 md:py-24">
@@ -28,30 +28,18 @@ export function Gracias({ book, whatsappUrl }: GraciasProps) {
               <span className="texto-oro">¡Gracias, ya eres parte!</span>
             </h1>
             <p className="mt-4 leading-relaxed text-papel/85">
-              Tu compra quedó confirmada. Descarga tu copia y guárdala en tu celular o en tu computador para tenerla
-              siempre a la mano.
-            </p>
-            <p className="mt-3 text-sm text-papel/75">
-              Es de uso personal: por favor no la compartas, así cuidas el trabajo de quienes escribimos este libro.
-            </p>
-            <p className="mt-3 text-sm text-papel/75">
-              El botón se abre en Google Drive: allí toca el ícono de descarga (la flecha hacia abajo) para guardarlo.
+              Tu compra quedó confirmada. Escribe el correo con el que pagaste y descarga tu libro.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3">
-              <ButtonLink href={postCompra.urlDescarga} target="_blank" rel="noopener noreferrer">
-                Descargar mi libro (PDF) <span aria-hidden>↓</span>
-              </ButtonLink>
-            </div>
+            <FormularioDescarga />
 
-            <p className="mt-6 rounded-2xl border border-oro/25 bg-negro/40 p-4 text-sm leading-relaxed text-papel/85">
-              <span className="font-semibold text-oro-claro">Revisa tu correo:</span> ahí te llega el enlace para entrar a
-              tu cuenta en Wemany.
+            <p className="mt-6 text-sm text-papel/75">
+              Es de uso personal: por favor no lo compartas, así cuidas el trabajo de quienes escribimos este libro.
             </p>
 
             {whatsappUrl ? (
-              <p className="mt-6 text-sm text-papel/75">
-                ¿Tienes algún problema con la descarga?{" "}
+              <p className="mt-4 text-sm text-papel/75">
+                ¿No encuentras tu compra?{" "}
                 <a
                   href={whatsappUrl}
                   target="_blank"
