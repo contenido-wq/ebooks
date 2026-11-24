@@ -8,7 +8,8 @@ export const FEATURED_SLUG = "si-dios-jugara-futbol"
 // testimonios va vacío a propósito: el "Camerino" del libro trae comentarios de futbolistas con nombre,
 // y usarlos en una página de ventas requiere el visto bueno del dueño. Con la lista vacía la sección no se muestra.
 // Precio: $50.000 COP (lo fijó el dueño). El dólar es su equivalente con la TRM de referencia del 18-nov-2026
-// ($3.309,55): 50.000 / 3.309,55 = US$15,11. Si Wemany cobra otro valor, hay que igualarlos a mano.
+// ($3.309,55): 50.000 / 3.309,55 = US$15,11, que el dueño pidió dejar redondo en US$15.
+// Si Wemany cobra otro valor, hay que igualarlos a mano.
 
 const siDiosJugaraFutbol: Book = {
   slug: FEATURED_SLUG,
@@ -17,7 +18,7 @@ const siDiosJugaraFutbol: Book = {
     "45 relatos, uno por cada minuto del primer tiempo, para que te pongas los guayos y juegues el partido de tu vida.",
   autor: "Juan Guillermo Ricaurte y Jeins Durán",
   portada: { src: "/portada.webp", ancho: 879, alto: 1417 },
-  precioUsd: 15.11,
+  precioUsd: 15,
   precioCop: 50000,
   urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
   // El PDF NO está aquí ni en ningún enlace: vive en un bucket privado y se entrega con un ticket de un solo uso

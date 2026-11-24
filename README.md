@@ -19,7 +19,7 @@ Los datos del libro están en `src/content/books.ts`. Los textos salen del propi
 Para usar la portada real, guarda la imagen en `public/` y pon su ruta en `portada`
 (por ejemplo `"/portada.webp"`).
 
-**Precio:** $50.000 COP (`precioCop`) y US$15,11 (`precioUsd`, la conversión con la TRM de $3.309,55 del 18-nov-2026). La landing solo
+**Precio:** $50.000 COP (`precioCop`) y US$15 (`precioUsd`: la conversión con la TRM de $3.309,55 del 18-nov-2026 da 15,11, redondeada). La landing solo
 muestra el precio; **quien cobra es Wemany**, así que el plan del libro en Wemany debe tener el mismo valor. Si cambias uno, cambia el otro.
 
 ## Imágenes de la landing
