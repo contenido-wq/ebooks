@@ -65,13 +65,13 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 ## Página de gracias (`/gracias`)
 
 Wemany lleva a quien acaba de comprar a `https://sidiosjugarafutbol.com/gracias`: confirmación, portada, botón para descargar el PDF,
-botón para entrar a su cuenta de Wemany y ayuda por WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_NUMBER`).
+un aviso de que el acceso a Wemany le llega por correo, y ayuda por WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_NUMBER`).
 
 - **El PDF vive en Google Drive y su enlace NO está en el código** (este repositorio es público). Sale de la variable de entorno
   `NEXT_PUBLIC_DESCARGA_URL`: en `.env.local` para desarrollo y en el comando de publicación para producción. Debe empezar por `https://`.
   El archivo debe estar compartido como "Cualquier persona con el enlace"; si no, el comprador ve "Solicitar acceso".
   Para cambiar el PDF, cambia la variable y publica de nuevo. Nunca escribas el enlace real en un archivo versionado.
-- **Cuenta de Wemany:** pon el enlace en `postCompra.urlCuentaWemany`. Mientras valga `null`, el botón no aparece.
+- **Acceso a Wemany:** no hay botón ni enlace en el código. Wemany se lo manda a cada comprador por correo, y la página solo se lo recuerda.
 - **No se indexa** (`noindex, nofollow`), pero el enlace no es secreto: **quien lo comparta, comparte el libro**. La mejora pendiente es
   verificar el email del comprador contra el webhook de compras (guardarlo en Cloudflare KV) y entregar un enlace temporal.
 - Sin `NEXT_PUBLIC_DESCARGA_URL` (o si no es `https://`), el libro no tiene `postCompra` y `/gracias` responde 404.

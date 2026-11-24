@@ -42,17 +42,12 @@ export function Gracias({ book, whatsappUrl }: GraciasProps) {
               <ButtonLink href={postCompra.urlDescarga} target="_blank" rel="noopener noreferrer">
                 Descargar mi libro (PDF) <span aria-hidden>↓</span>
               </ButtonLink>
-              {postCompra.urlCuentaWemany ? (
-                <ButtonLink
-                  href={postCompra.urlCuentaWemany}
-                  variant="secondary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Entrar a mi cuenta en Wemany <span aria-hidden>→</span>
-                </ButtonLink>
-              ) : null}
             </div>
+
+            <p className="mt-6 rounded-2xl border border-oro/25 bg-negro/40 p-4 text-sm leading-relaxed text-papel/85">
+              <span className="font-semibold text-oro-claro">Revisa tu correo:</span> ahí te llega el enlace para entrar a
+              tu cuenta en Wemany.
+            </p>
 
             {whatsappUrl ? (
               <p className="mt-6 text-sm text-papel/75">

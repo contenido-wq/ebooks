@@ -70,8 +70,6 @@ export type LandingContent = {
 export type PostCompra = {
   /** Enlace al PDF del libro (Google Drive). */
   urlDescarga: string
-  /** Enlace para entrar a la cuenta de Wemany. Con null el botón no se muestra. */
-  urlCuentaWemany: string | null
 }
 
 export type Book = {

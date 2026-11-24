@@ -58,8 +58,8 @@ describe("datos de post-compra", () => {
     expect((await cargarLibro("http://drive.google.com/file/d/ID/view")).postCompra).toBeUndefined()
   })
 
-  it("la cuenta de Wemany queda sin enlace hasta que el dueño lo dé", async () => {
-    expect((await cargarLibro(URL_PDF)).postCompra?.urlCuentaWemany).toBeNull()
+  it("los datos de post-compra solo traen el enlace del PDF (el acceso a Wemany llega por correo)", async () => {
+    expect((await cargarLibro(URL_PDF)).postCompra).toEqual({ urlDescarga: URL_PDF })
   })
 })
 

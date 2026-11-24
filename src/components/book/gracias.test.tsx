@@ -5,10 +5,9 @@ import type { Book } from "@/content/types"
 import { Gracias } from "./gracias"
 
 const URL_PDF = "https://drive.google.com/file/d/ID/view?usp=sharing"
-const URL_WEMANY = "https://app.wemany.com/mi-cuenta"
 
-function libro(urlCuentaWemany: string | null = URL_WEMANY): Book {
-  return { ...getFeaturedBook(), postCompra: { urlDescarga: URL_PDF, urlCuentaWemany } }
+function libro(): Book {
+  return { ...getFeaturedBook(), postCompra: { urlDescarga: URL_PDF } }
 }
 
 describe("Gracias", () => {
@@ -31,16 +30,13 @@ describe("Gracias", () => {
     expect(screen.getByText(/se abre en google drive/i)).toBeInTheDocument()
   })
 
-  it("el botón de Wemany lleva a la cuenta del dueño en una pestaña nueva y segura", () => {
+  it("avisa que el acceso a Wemany llega por correo", () => {
     render(<Gracias book={libro()} />)
-    const enlace = screen.getByRole("link", { name: /entrar a mi cuenta en wemany/i })
-    expect(enlace).toHaveAttribute("href", URL_WEMANY)
-    expect(enlace).toHaveAttribute("target", "_blank")
-    expect(enlace.getAttribute("rel")).toContain("noopener")
+    expect(screen.getByText(/revisa tu correo/i)).toBeInTheDocument()
   })
 
-  it("sin enlace de Wemany no muestra el botón (no deja un enlace roto)", () => {
-    render(<Gracias book={libro(null)} />)
+  it("no ofrece ningún botón hacia Wemany: el enlace de acceso llega por correo", () => {
+    render(<Gracias book={libro()} />)
     expect(screen.queryByRole("link", { name: /wemany/i })).not.toBeInTheDocument()
   })
 

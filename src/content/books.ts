@@ -25,13 +25,8 @@ const siDiosJugaraFutbol: Book = {
   precioCop: 79900,
   urlCompra: "https://app.wemany.com/p/si_dios_jugara_futbol/f2cde169-df23-42ce-917c-a44757e7225d",
   // Sin NEXT_PUBLIC_DESCARGA_URL (o si no es https) no hay datos de post-compra y /gracias responde 404.
-  postCompra: urlDescarga
-    ? {
-        urlDescarga,
-        // Pendiente del dueño: enlace de su cuenta de Wemany. Con null el botón no aparece en /gracias.
-        urlCuentaWemany: null,
-      }
-    : undefined,
+  // El enlace de acceso a Wemany no va aquí: Wemany se lo manda a cada comprador por correo.
+  postCompra: urlDescarga ? { urlDescarga } : undefined,
   anioPublicacion: 2026,
   testimonios: [],
   faq: [

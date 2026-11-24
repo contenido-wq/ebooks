@@ -1,12 +1,12 @@
 # Página de gracias con descarga del libro — Diseño
 
 ## Intención
-Quien compra en Wemany llega a `/gracias`: confirmación, portada real, botón para descargar el PDF y botón para entrar a su cuenta de Wemany. Así el comprador tiene su libro en el momento, sin esperar un email.
+Quien compra en Wemany llega a `/gracias`: confirmación, portada real, botón para descargar el PDF y un aviso de que el acceso a Wemany le llega por correo (Wemany se lo manda a cada comprador; no hay botón). Así el comprador tiene su libro en el momento, sin esperar un email.
 
 ## Metas
 - Página `/gracias` con el estilo de la landing (fondo carbón, dorado, Playfair, componentes `Cover` y `ButtonLink`).
 - Botón de descarga que abre el PDF del libro en Google Drive (el mismo archivo que ya se entrega tras la compra).
-- Botón a la cuenta de Wemany y ayuda por WhatsApp (solo si `NEXT_PUBLIC_WHATSAPP_NUMBER` existe).
+- Aviso "Revisa tu correo" para el acceso a Wemany (cambio posterior: el dueño aclaró que ese enlace llega por correo, así que no hay botón) y ayuda por WhatsApp (solo si `NEXT_PUBLIC_WHATSAPP_NUMBER` existe).
 
 ## No metas
 - Verificar la compra por email (se puede añadir luego con el webhook + KV).
@@ -36,7 +36,6 @@ Quien compra en Wemany llega a `/gracias`: confirmación, portada real, botón p
 4. Verificación por email con KV + link temporal: más seguro, más trabajo; queda como mejora.
 
 ## Pendiente del dueño
-- URL de la cuenta de Wemany.
 - Configurar en Wemany la redirección post-pago a `https://sidiosjugarafutbol.com/gracias`.
 - Confirmar que el archivo de Drive tenga acceso "Cualquier persona con el enlace".
 - Foto opcional (Juan Guillermo y Jeins, horizontal ≥1600 px).
