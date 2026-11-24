@@ -1,41 +1,48 @@
-# Página de gracias con descarga del libro — Diseño
+# Página de gracias con descarga verificada — Diseño
+
+> **Historia:** primero `/gracias` tenía un botón a un PDF en Drive (cualquiera con el link bajaba el libro). Luego se intentó entregar el libro
+> solo dentro de Wemany, pero Wemany no deja subir el PDF. Este diseño es el vigente: **descarga verificada con enlace de un solo uso**.
 
 ## Intención
-Quien compra en Wemany llega a `/gracias`: confirmación, portada real, botón para descargar el PDF y un aviso de que el acceso a Wemany le llega por correo (Wemany se lo manda a cada comprador; no hay botón). Así el comprador tiene su libro en el momento, sin esperar un email.
+Que solo quien pagó pueda descargar el PDF, y que el enlace de descarga no sirva para compartir: cada vez se crea uno nuevo, vale una sola vez
+y caduca en 10 minutos.
+
+## Cómo funciona
+1. **Wemany avisa de una compra aprobada** (webhook, ya probado). El Worker guarda en Cloudflare KV la **huella SHA-256 del correo**
+   (nunca el correo en claro) en `pagado:<huella>`.
+2. **En `/gracias`**, la persona escribe el correo con el que pagó. `POST /api/gracias` revisa el límite de intentos y la huella en KV.
+   Si coincide, crea un ticket aleatorio (256 bits) en KV con vida de 10 minutos y responde con `/descarga?t=<ticket>`.
+3. **`GET /descarga?t=<ticket>`** canjea el ticket (lo lee y lo borra) y entrega el PDF desde un bucket **privado de R2** como adjunto.
+   Un ticket usado, vencido o inventado responde 410 con un mensaje en español.
+4. El PDF **no** está en `public/`, ni en Drive, ni en el HTML. La página abierta no contiene ningún enlace al libro.
 
 ## Metas
-- Página `/gracias` con el estilo de la landing (fondo carbón, dorado, Playfair, componentes `Cover` y `ButtonLink`).
-- Botón de descarga que abre el PDF del libro en Google Drive (el mismo archivo que ya se entrega tras la compra).
-- Aviso "Revisa tu correo" para el acceso a Wemany (cambio posterior: el dueño aclaró que ese enlace llega por correo, así que no hay botón) y ayuda por WhatsApp (solo si `NEXT_PUBLIC_WHATSAPP_NUMBER` existe).
+- Quien no pagó no puede descargar; un enlace copiado a otro navegador no sirve (ya se usó o caducó).
+- No guardar correos en claro. Límite de intentos por IP y por correo.
+- Mismo estilo de la landing. Ayuda por WhatsApp si no encuentra su compra.
 
 ## No metas
-- Verificar la compra por email (se puede añadir luego con el webhook + KV).
-- PDF marcado con el email de cada comprador.
-- Lector en línea (Fase 2 sigue pendiente).
-- Alojar el PDF en el sitio (R2, `/descarga`): descartado, el PDF ya está en Drive.
+- Evitar que un comprador pase el archivo ya descargado (solo se evita con PDF marcado por comprador: otro proyecto).
+- Enviar el enlace por correo (necesita un servicio de envío y verificar el dominio): mejora posible. Hoy, quien sepa el correo de un comprador
+  podría pedir el enlace; el límite de intentos lo reduce, no lo elimina.
+- Reembolsos: no se revoca el acceso (no se conoce el nombre del evento de Wemany).
 
 ## Antimetas
-- Que Google indexe la página `/gracias`.
+- Que Google indexe `/gracias` o `/descarga`.
+- Que un evento de prueba de Wemany (`"test": true`, correo de muestra) conceda acceso.
+- Que un evento que no sea compra aprobada (reembolso, rechazo, carrito) conceda acceso.
 
 ## Decisiones (del dueño)
-- Página de gracias a la que redirige Wemany tras el pago; portada + descarga + acceso a Wemany.
-- El PDF se entrega desde Google Drive. **El enlace no se guarda en el repositorio** (es público): vive en la variable de entorno `NEXT_PUBLIC_DESCARGA_URL` (se fija al compilar y en `.env.local`). Sin la variable, o si no es `https://`, `/gracias` responde 404.
-- Protección ligera aceptada: quien comparta el link descarga gratis.
+- Wemany no deja subir el PDF → la descarga se verifica en este sitio.
+- Aprobó mover el PDF a Cloudflare (R2) y quitarlo de Drive después.
+- Aprobó el formulario del correo con enlace de un solo uso y 10 minutos.
 
 ## Decisiones (mías, a revisar)
-- Se usa el link `/view` tal cual (abre el visor de Drive con botón de descargar). El link de descarga directa (`uc?export=download`) en un archivo de 37 MB muestra una pantalla de "no se puede analizar en busca de virus", así que no se usa.
-- El link abre en pestaña nueva (`target="_blank" rel="noopener noreferrer"`).
-- `/gracias` con `noindex, nofollow`; no hay sitemap en el proyecto.
-- Se actualiza la FAQ "¿Puedo descargar el PDF?" a "Sí".
-- Datos nuevos (URL del PDF, URL de Wemany) en `src/content/books.ts`.
-
-## Enfoques considerados
-1. PDF en `public/`: no cabe (37 MB, límite ~25 MB de assets de Workers) y se descarga sin pasar por nosotros.
-2. PDF en R2 servido por ruta propia: descartado al aparecer el link de Drive; más piezas para el mismo resultado.
-3. **Elegido:** botón que enlaza al PDF en Drive. Cero infraestructura nueva.
-4. Verificación por email con KV + link temporal: más seguro, más trabajo; queda como mejora.
+- Uso único "de mejor esfuerzo": KV tarda hasta ~1 minuto en propagarse, así que dos peticiones casi simultáneas podrían canjear el mismo ticket.
+- Todas las compras aprobadas de este webhook dan acceso al libro (se asume que la comunidad solo vende este libro).
+- Bucket `sidiosjugarafutbol-libro`, clave `si-dios-jugara-futbol.pdf`; KV `COMPRADORES`; binding R2 `LIBRO_PDF`.
+- Los tickets y contadores viven en el mismo KV, con vencimiento.
 
 ## Pendiente del dueño
-- Configurar en Wemany la redirección post-pago a `https://sidiosjugarafutbol.com/gracias`.
-- Confirmar que el archivo de Drive tenga acceso "Cualquier persona con el enlace".
-- Foto opcional (Juan Guillermo y Jeins, horizontal ≥1600 px).
+- Quitar el PDF de Drive cuando se confirme que la descarga funciona en producción.
+- Número definitivo de WhatsApp.
