@@ -83,7 +83,7 @@ type Regla = {
 /** Sinónimos por campo, ya normalizados (sin tildes, minúsculas, sin símbolos). */
 const REGLAS: Record<
   | "evento" | "nombre" | "email" | "telefono" | "telefonoFacturacion" | "pais" | "producto" | "productoAnidado"
-  | "monto" | "valorNeto" | "moneda" | "metodoPago" | "estado" | "reactivacion"
+  | "monto" | "montoBruto" | "valorNeto" | "moneda" | "metodoPago" | "estado" | "reactivacion"
   | "utmSource" | "utmMedium" | "utmCampaign" | "utmContent" | "origen" | "id",
   Regla
 > = {
@@ -107,6 +107,9 @@ const REGLAS: Record<
     claves: ["amountpaid", "montopagado", "amount", "monto", "total", "price", "precio", "value", "valor"],
     evitar: /plan|subscription|suscripcion/i,
   },
+  // Respaldo: el evento de prueba de Wemany trae `grossValue` suelto y ningún `amountPaid`. Solo se usa si no hay monto cobrado
+  // (ver construirFila): `buscar` prefiere lo menos profundo, así que como regla normal le ganaría a `payment.amountPaid`.
+  montoBruto: { claves: ["grossvalue", "valorbruto"], evitar: /plan|subscription|suscripcion/i },
   valorNeto: { claves: ["netvalue", "valorneto"] },
   moneda: { claves: ["currency", "moneda", "currencycode"] },
   metodoPago: { claves: ["paymentmethod", "metodopago", "metodo"] },
@@ -251,6 +254,12 @@ export function construirFila(payload: unknown, ahora: Date, extras: Extras = {}
   // reenviar una petición firmada cambiando el encabezado no genere una fila nueva.
   const idEvento = texto(buscar(hojas, REGLAS.id)) || texto(extras.idEventoEncabezado)
 
+  // Monto cobrado; si el evento no lo trae, el valor bruto, pero solo si es mayor que 0 (vacío no es cero).
+  const bruto = buscar(hojas, REGLAS.montoBruto)
+  const brutoNumero = typeof bruto === "number" || typeof bruto === "string" ? Number(bruto) : Number.NaN
+  const montoRespaldo = Number.isFinite(brutoNumero) && brutoNumero > 0 ? bruto : undefined
+  const monto = buscar(hojas, REGLAS.monto) ?? montoRespaldo
+
   return {
     fecha_recibida: fechaColombia(ahora),
     evento: etiquetaEvento(eventoOriginal),
@@ -260,7 +269,7 @@ export function construirFila(payload: unknown, ahora: Date, extras: Extras = {}
     telefono_facturacion: texto(buscar(hojas, REGLAS.telefonoFacturacion)),
     pais: texto(buscar(hojas, REGLAS.pais)),
     producto: texto(buscar(hojas, REGLAS.producto) ?? buscar(hojas, REGLAS.productoAnidado)),
-    monto: numeroSiEsNumero(buscar(hojas, REGLAS.monto)),
+    monto: numeroSiEsNumero(monto),
     valor_neto: numeroSiEsNumero(buscar(hojas, REGLAS.valorNeto)),
     moneda: texto(buscar(hojas, REGLAS.moneda)).toUpperCase(),
     metodo_pago: texto(buscar(hojas, REGLAS.metodoPago)),

@@ -100,6 +100,8 @@ pago rechazado, nuevo miembro) y cada evento queda como una fila en la hoja "Web
   Por eso la hoja tiene 8 s de espera y, si falla, se responde 502 para que reintenten.
 - **Vacío no es cero:** monto y valor_neto quedan vacíos cuando no hubo cobro (carrito abandonado, pago rechazado, alta gratis sin importe).
   No se usa el precio del plan como monto.
+- **Monto de respaldo:** `monto` sale de lo cobrado (`amountPaid`, etc.). Solo si el evento no lo trae, se usa `grossValue` (así llena el
+  evento de prueba de Wemany, que lo trae suelto), y solo si es mayor que 0. Un `amountPaid` más profundo nunca pierde contra un `grossValue`.
 - **UTM y origen los escribe el comprador** (`attributionOrigin: buyer_supplied`): se guardan como texto recortado, nunca se interpretan
   como fórmulas ni disparan nada. No usarlos como dato de contacto.
 - Los datos se buscan por nombre en cualquier parte del JSON (`src/lib/wemany/normalizar.ts`) y siempre se guarda el JSON completo

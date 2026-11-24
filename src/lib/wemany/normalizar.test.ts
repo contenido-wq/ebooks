@@ -102,6 +102,47 @@ describe("construirFila", () => {
   })
 })
 
+describe("monto: el valor bruto sirve de respaldo", () => {
+  // Forma del evento de prueba que envía Wemany: grossValue y netValue sueltos en `data`, sin `payment.amountPaid`.
+  const eventoDePrueba = {
+    type: "purchase.approved",
+    test: true,
+    data: {
+      currency: "usd",
+      grossValue: 20,
+      netValue: 17,
+      productName: "Plan de ejemplo",
+      customer: { email: "prueba@example.com", fullName: "Comprador de Prueba" },
+    },
+  }
+
+  it("usa grossValue cuando el evento no trae un monto cobrado", () => {
+    const fila = construirFila(eventoDePrueba, AHORA)
+    expect(fila.monto).toBe(20)
+    expect(fila.valor_neto).toBe(17)
+    expect(fila.moneda).toBe("USD")
+  })
+
+  it("si el evento trae amountPaid, ese manda aunque grossValue esté más arriba", () => {
+    const fila = construirFila(
+      { type: "purchase.approved", data: { grossValue: 99999, payment: { amountPaid: 79900, netValue: 74000, currency: "COP" } } },
+      AHORA,
+    )
+    expect(fila.monto).toBe(79900)
+  })
+
+  it("un valor bruto de 0 o nulo no se escribe como monto (vacío no es cero)", () => {
+    for (const bruto of [0, null, "0"]) {
+      const fila = construirFila({ type: "cart.abandoned", data: { grossValue: bruto } }, AHORA)
+      expect(fila.monto, String(bruto)).toBe("")
+    }
+  })
+
+  it("acepta el valor bruto como texto numérico", () => {
+    expect(construirFila({ type: "purchase.approved", data: { grossValue: "20.5" } }, AHORA).monto).toBe(20.5)
+  })
+})
+
 describe("JSON hostil", () => {
   it("un JSON anidado decenas de miles de niveles no agota la pila", () => {
     const profundo = JSON.parse("[".repeat(50_000) + "]".repeat(50_000))
