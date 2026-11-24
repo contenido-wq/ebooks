@@ -1,16 +1,18 @@
 import { describe, expect, it, vi } from "vitest"
 import { almacenFalso } from "@/test/almacen-falso"
 import { registrarCompra } from "./compradores"
-import { CLAVE_PDF, entregarPdf, verificarCorreo, type BucketPdf } from "./descarga"
+import { CLAVE_PDF, entregarPdf, verificarCorreo, type AlmacenPdf } from "./descarga"
 import { crearTicket } from "./tickets"
 
 const CONTENIDO = "%PDF-1.7 contenido de prueba"
 
-function bucketFalso(existe = true): BucketPdf {
+/** Imita el KV donde vive el PDF: `get(clave, "stream")` devuelve el contenido como flujo, o null si no existe. */
+function bucketFalso(existe = true): AlmacenPdf {
   return {
-    async get(clave) {
+    async get(clave, tipo) {
+      if (tipo !== "stream") throw new Error("el PDF siempre se pide como flujo")
       if (!existe || clave !== CLAVE_PDF) return null
-      return { body: new Response(CONTENIDO).body as ReadableStream, size: CONTENIDO.length }
+      return new Response(CONTENIDO).body as ReadableStream
     },
   }
 }
@@ -88,7 +90,6 @@ describe("entregarPdf", () => {
     const res = await entregarPdf({ COMPRADORES: kv, LIBRO_PDF: bucketFalso() }, ticket)
     expect(res.status).toBe(200)
     expect(res.headers.get("content-type")).toBe("application/pdf")
-    expect(res.headers.get("content-length")).toBe(String(CONTENIDO.length))
     const disposicion = res.headers.get("content-disposition") ?? ""
     expect(disposicion).toContain("attachment")
     expect(disposicion).toContain("filename*=UTF-8''Si%20Dios%20jugara%20futbol.pdf")

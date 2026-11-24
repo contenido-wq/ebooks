@@ -19,8 +19,7 @@ function pedir(ticket?: string) {
 
 beforeEach(() => {
   const bucket = {
-    get: async (clave: string) =>
-      clave === CLAVE_PDF ? { body: new Response(CONTENIDO).body as ReadableStream, size: CONTENIDO.length } : null,
+    get: async (clave: string) => (clave === CLAVE_PDF ? (new Response(CONTENIDO).body as ReadableStream) : null),
   }
   vi.mocked(leerEntornoSitio).mockResolvedValue({ COMPRADORES: kv, LIBRO_PDF: bucket })
 })

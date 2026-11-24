@@ -3,14 +3,17 @@ import { esComprador } from "./compradores"
 import { huellaCorreo, normalizarCorreo } from "./huella"
 import { canjearTicket, crearTicket, permitirIntento } from "./tickets"
 
-/** Lo mínimo que se usa de un bucket de R2. En las pruebas se reemplaza por uno falso. */
-export type BucketPdf = {
-  get(clave: string): Promise<{ body: ReadableStream; size: number } | null>
+/**
+ * Lo mínimo que se usa del KV donde vive el PDF (privado: solo este Worker lo lee). Un valor de KV admite hasta 25 MB y el
+ * libro pesa ~11 MB, así que no hace falta R2. En las pruebas se reemplaza por uno falso.
+ */
+export type AlmacenPdf = {
+  get(clave: string, tipo: "stream"): Promise<ReadableStream | null>
 }
 
-export type EntornoDescarga = { COMPRADORES?: Almacen; LIBRO_PDF?: BucketPdf }
+export type EntornoDescarga = { COMPRADORES?: Almacen; LIBRO_PDF?: AlmacenPdf }
 
-/** Clave del PDF dentro del bucket privado y nombre con el que lo recibe el comprador. */
+/** Clave del PDF dentro del almacén privado y nombre con el que lo recibe el comprador. */
 export const CLAVE_PDF = "si-dios-jugara-futbol.pdf"
 export const NOMBRE_DESCARGA = "Si Dios jugara futbol.pdf"
 
@@ -74,14 +77,13 @@ export async function entregarPdf(env: EntornoDescarga, ticket: string | null): 
         "Este enlace ya se usó o venció. Vuelve a la página de gracias, escribe tu correo y pide uno nuevo.",
       )
     }
-    const objeto = await bucket.get(CLAVE_PDF)
-    if (!objeto) return texto(404, "El libro todavía no está disponible. Escríbenos por WhatsApp y te ayudamos.")
+    const libro = await bucket.get(CLAVE_PDF, "stream")
+    if (!libro) return texto(404, "El libro todavía no está disponible. Escríbenos por WhatsApp y te ayudamos.")
 
-    return new Response(objeto.body, {
+    return new Response(libro, {
       status: 200,
       headers: {
         "content-type": "application/pdf",
-        "content-length": String(objeto.size),
         "content-disposition": `attachment; filename="${NOMBRE_DESCARGA}"; filename*=UTF-8''${encodeURIComponent(NOMBRE_DESCARGA)}`,
         "cache-control": "private, no-store",
         "x-robots-tag": "noindex",
