@@ -25,6 +25,14 @@ describe("catálogo de libros", () => {
     }
   })
 
+  it("el precio del libro destacado es $50.000 COP y su equivalente en dólares (TRM 3.309,55)", () => {
+    const { precioCop, precioUsd } = getFeaturedBook()
+    expect(precioCop).toBe(50_000)
+    expect(precioUsd).toBe(15.11)
+    // El dólar sale de la tasa de referencia: no se aparta más de un centavo de la conversión exacta.
+    expect(Math.abs(precioUsd - 50_000 / 3309.55)).toBeLessThan(0.01)
+  })
+
   it("los autores del libro destacado son los del libro, no el editor", () => {
     expect(getFeaturedBook().autor).toBe("Juan Guillermo Ricaurte y Jeins Durán")
   })

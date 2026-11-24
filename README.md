@@ -17,7 +17,10 @@ Tienda de ebooks con lector en línea. Primer libro: *Si Dios jugara fútbol*, d
 
 Los datos del libro están en `src/content/books.ts`. Los textos salen del propio libro.
 Para usar la portada real, guarda la imagen en `public/` y pon su ruta en `portada`
-(por ejemplo `"/portada.webp"`). Antes de lanzar, fija el precio real en pesos (`precioCop`).
+(por ejemplo `"/portada.webp"`).
+
+**Precio:** $50.000 COP (`precioCop`) y US$15,11 (`precioUsd`, la conversión con la TRM de $3.309,55 del 18-nov-2026). La landing solo
+muestra el precio; **quien cobra es Wemany**, así que el plan del libro en Wemany debe tener el mismo valor. Si cambias uno, cambia el otro.
 
 ## Imágenes de la landing
 
