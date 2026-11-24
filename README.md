@@ -53,28 +53,35 @@ La página corre en Cloudflare Workers con vinext. El dominio y el Worker están
 
     npx cf auth create ebooks      # solo la primera vez (abre el navegador)
     npx cf auth activate ebooks    # enlaza el perfil con esta carpeta
-    NEXT_PUBLIC_SITE_URL=https://sidiosjugarafutbol.com NEXT_PUBLIC_DESCARGA_URL="<enlace del PDF en Drive>" npm run deploy:vinext
+    NEXT_PUBLIC_SITE_URL=https://sidiosjugarafutbol.com NEXT_PUBLIC_WHATSAPP_NUMBER=57... npm run deploy:vinext
 
 - Hay que pasar `NEXT_PUBLIC_SITE_URL` al desplegar: `.env.local` (para desarrollo) tiene `localhost` y ganaría.
-- Hay que pasar también `NEXT_PUBLIC_DESCARGA_URL` (el enlace del PDF): se incrusta al compilar. Sin ella, `/gracias` sale como 404.
-- Cuando se defina el WhatsApp, agregar también `NEXT_PUBLIC_WHATSAPP_NUMBER=57...` en el mismo comando.
+- Hay que pasar también `NEXT_PUBLIC_WHATSAPP_NUMBER` (código de país, solo dígitos): se incrusta al compilar. Sin él, no aparece la ayuda por WhatsApp.
 - La imagen para compartir (`src/app/opengraph-image.png`) es un archivo fijo, sin precio. Si cambia la portada, hay que regenerarla.
 - Las imágenes se sirven sin optimizador (`images.unoptimized`): Cloudflare Images las recomprimía y se perdía la textura de la piel.
 - Dominio y `www` se declaran en `cloudflare.config.ts` (`domains`).
 
 ## Página de gracias (`/gracias`)
 
-Wemany lleva a quien acaba de comprar a `https://sidiosjugarafutbol.com/gracias`: confirmación, portada, botón para descargar el PDF,
-un aviso de que el acceso a Wemany le llega por correo, y ayuda por WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_NUMBER`).
+Wemany lleva a quien acaba de comprar a `https://sidiosjugarafutbol.com/gracias`. La página es abierta y **no contiene ningún enlace al libro**:
+la persona escribe el correo con el que pagó y, si hay una compra, recibe un enlace de descarga **de un solo uso que vence en 10 minutos**.
 
-- **El PDF vive en Google Drive y su enlace NO está en el código** (este repositorio es público). Sale de la variable de entorno
-  `NEXT_PUBLIC_DESCARGA_URL`: en `.env.local` para desarrollo y en el comando de publicación para producción. Debe empezar por `https://`.
-  El archivo debe estar compartido como "Cualquier persona con el enlace"; si no, el comprador ve "Solicitar acceso".
-  Para cambiar el PDF, cambia la variable y publica de nuevo. Nunca escribas el enlace real en un archivo versionado.
-- **Acceso a Wemany:** no hay botón ni enlace en el código. Wemany se lo manda a cada comprador por correo, y la página solo se lo recuerda.
-- **No se indexa** (`noindex, nofollow`), pero el enlace no es secreto: **quien lo comparta, comparte el libro**. La mejora pendiente es
-  verificar el email del comprador contra el webhook de compras (guardarlo en Cloudflare KV) y entregar un enlace temporal.
-- Sin `NEXT_PUBLIC_DESCARGA_URL` (o si no es `https://`), el libro no tiene `postCompra` y `/gracias` responde 404.
+    Wemany --compra aprobada--> webhook --> KV COMPRADORES  pagado:<SHA-256 del correo>
+    /gracias (correo) --> POST /api/gracias --> si pagó: ticket aleatorio en KV (10 min) --> /descarga?t=<ticket>
+    GET /descarga?t=...  --> canjea el ticket (lo borra) --> entrega el PDF desde KV LIBRO_PDF
+
+- **Dónde vive el PDF:** en el KV privado `LIBRO_PDF` (`sidiosjugarafutbol-libro`), clave `si-dios-jugara-futbol.pdf`. Un valor de KV admite hasta
+  25 MB (el libro pesa ~11 MB). Para cambiarlo: `npx cf kv keys put si-dios-jugara-futbol.pdf --namespace-id=<id de LIBRO_PDF> --file=ruta/libro.pdf`
+  (la sintaxis lleva `=`). No hace falta publicar de nuevo. R2 sería lo ideal, pero hay que activarlo en el dashboard de Cloudflare.
+- **Quién paga:** el webhook anota en `COMPRADORES` solo la **huella SHA-256 del correo** (nunca el correo) cuando llega una compra aprobada real.
+  Los eventos de prueba (`"test": true`), reembolsos, rechazos y carritos abandonados no dan acceso.
+- **Seguridad:** máximo 5 intentos cada 10 minutos por IP y por correo. Un ticket usado, vencido o inventado responde 410. `/gracias` y `/descarga`
+  no se indexan. El uso único es de mejor esfuerzo (KV tarda hasta ~1 minuto en propagarse).
+- **Límites conocidos:** quien sepa el correo de un comprador podría pedir el enlace (se podría enviar el enlace por correo con un servicio
+  como Resend); quien ya descargó puede pasar el archivo; los reembolsos no revocan el acceso.
+- **Dar acceso a mano** (por ejemplo a un comprador anterior al webhook): calcula la huella del correo (SHA-256 de `correo` en minúsculas) y
+  `npx cf kv keys put pagado:<huella> --namespace-id=<id de COMPRADORES> --body=1`.
+- **Acceso a Wemany:** Wemany se lo manda a cada comprador por correo; este sitio no lo gestiona.
 
 ## Webhook de Wemany -> Google Sheets
 
